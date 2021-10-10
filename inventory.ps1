@@ -2,6 +2,7 @@
 Stop-Transcript | Out-Null
 
 $project = 'Inventory'
+$start_time = 90
 $reg_path = "HKLM:\SOFTWARE\ITSupport\$project"
 $script_path = "C:\Windows\System32\IntuneAdmins\$project"
 $bucket = 'prod-db-sept'
@@ -60,7 +61,7 @@ function RegistryValue($Path, $VarName, $VarValue) {
     
 } 
 
-RegistryValue "$reg_path\Settings" time 10 # a little less than 15min (890)
+RegistryValue "$reg_path\Settings" time $start_time
 RegistryValue "$reg_path\Settings" lastRequest $timestamp
 
 #___________________________________________________________________________________________________________________________________________________________
