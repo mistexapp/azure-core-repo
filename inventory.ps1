@@ -18,6 +18,15 @@ if ($script_path | Test-Path){
 $ErrorActionPreference = "Continue"
 $logfile = "$script_path\$project.log"
 Start-Transcript -path $logfile -Append:$false | Out-Null
+
+#Delete old Inventory tasks
+#_________________________________
+Foreach ($x in ( Get-ScheduledTask | Select-Object TaskName)) {
+    if ($x -like '*invent*'){
+        $task_to_delete = $x | Select-Object -ExpandProperty TaskName
+        Unregister-ScheduledTask -TaskName $task_to_delete -Confirm:$false
+    }
+}
 #___________________________________________________________________________________________________________________________________________________________
 $raw_time = [System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId([DateTime]::Now,"Russian Standard Time")
 $timestamp = ([DateTimeOffset]$raw_time).ToUnixTimeSeconds()
@@ -66,7 +75,7 @@ RegistryValue "$reg_path\Settings" lastRequest $timestamp
 
 #___________________________________________________________________________________________________________________________________________________________
 #General
-$Version = 2.14
+$Version = 2
 $SerialNumber = (Get-WmiObject win32_bios | Select-Object -ExpandProperty serialnumber) -replace " "
 $host_name = (Get-WmiObject Win32_OperatingSystem).CSName
 if (($SerialNumber -like '*SystemSerialNumber*') -or ($SerialNumber -like '*Defaultstring*')) {
