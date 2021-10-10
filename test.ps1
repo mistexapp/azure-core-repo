@@ -1,1 +1,1 @@
-echo "test.test"
+echo "test2"
