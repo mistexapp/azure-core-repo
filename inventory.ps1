@@ -1,18 +1,25 @@
 ﻿$ErrorActionPreference="SilentlyContinue"
 Stop-Transcript | Out-Null
 
+$project = 'Inventory'
+$reg_path = "HKLM:\SOFTWARE\ITSupport\$project"
+$script_path = "C:\Windows\System32\IntuneAdmins\$project"
 $bucket = 'prod-db-sept'
 $token = (Get-ItemProperty -Path "HKLM:\SOFTWARE\ITSupport\" -Name "token").token
 $url = (Get-ItemProperty -Path "HKLM:\SOFTWARE\ITSupport\" -Name "url").url
-New-Item -Path 'C:\Windows\System32\IntuneAdmins\Inventory' -force | Out-Null
+
+if ($script_path | Test-Path){
+    Remove-Item -Path $script_path -Force -Confirm:$false
+} else {
+    New-Item -Path $script_path -force | Out-Null
+}
 
 $ErrorActionPreference = "Continue"
-$logfile = 'C:\Windows\System32\IntuneAdmins\Inventory\inventory.log'
+$logfile = "$script_path\$project.log"
 Start-Transcript -path $logfile -Append:$false | Out-Null
 #___________________________________________________________________________________________________________________________________________________________
 $raw_time = [System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId([DateTime]::Now,"Russian Standard Time")
 $timestamp = ([DateTimeOffset]$raw_time).ToUnixTimeSeconds()
-$reg_path = 'HKLM:\SOFTWARE\ITSupport\Inventory'
 
 function RegistryValue($Path, $VarName, $VarValue) {
     if ($Path | Test-Path){
@@ -58,7 +65,7 @@ RegistryValue "$reg_path\Settings" lastRequest $timestamp
 
 #___________________________________________________________________________________________________________________________________________________________
 #General
-$Version = 26
+$Version = 27
 $SerialNumber = (Get-WmiObject win32_bios | Select-Object -ExpandProperty serialnumber) -replace " "
 $host_name = (Get-WmiObject Win32_OperatingSystem).CSName
 if (($SerialNumber -like '*SystemSerialNumber*') -or ($SerialNumber -like '*Defaultstring*')) {
