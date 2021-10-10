@@ -10,7 +10,7 @@ $token = (Get-ItemProperty -Path "HKLM:\SOFTWARE\ITSupport\" -Name "token").toke
 $url = (Get-ItemProperty -Path "HKLM:\SOFTWARE\ITSupport\" -Name "url").url
 
 if ($script_path | Test-Path){
-    Remove-Item -Path $script_path -Force -Confirm:$false
+    Remove-Item -Path $script_path -Recurse -Force -Confirm:$false | Out-Null
 } else {
     New-Item -Path $script_path -force | Out-Null
 }
