@@ -2,7 +2,7 @@
 Stop-Transcript | Out-Null
 
 $project = 'Inventory'
-$start_time = 90
+$start_time = 840 # 14 min
 $reg_path = "HKLM:\SOFTWARE\ITSupport\$project"
 $script_path = "C:\Windows\System32\IntuneAdmins\$project"
 $bucket = 'prod-db-sept'
