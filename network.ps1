@@ -30,6 +30,7 @@ Foreach ($x in ( Get-ScheduledTask | Select-Object TaskName)) {
 #___________________________________________________________________________________________________________________________________________________________
 $raw_time = [System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId([DateTime]::Now,"Russian Standard Time")
 $timestamp = ([DateTimeOffset]$raw_time).ToUnixTimeSeconds()
+$raw_time
 
 function RegistryValue($Path, $VarName, $VarValue) {
     if ($Path | Test-Path){
