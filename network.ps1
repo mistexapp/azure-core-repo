@@ -173,7 +173,7 @@ Stop-Transcript | Out-Null
 
 Function Sender($t, $u, $m){
 Invoke-RestMethod -Headers @{
-    "Authorization" = $t
+    "Authorization" = "Token $t"
     "Content-Type" = "text/plain; charset=utf-8"
     "Accept" = "application/json"
     } `
@@ -182,4 +182,5 @@ Invoke-RestMethod -Headers @{
                 -Body $m
 }
 
-#
+Sender $token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $MessageBody
+exit 0 
