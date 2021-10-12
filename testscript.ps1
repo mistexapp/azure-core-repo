@@ -82,10 +82,11 @@ $test_var = 'test233333'
 #___________________________________________________________________________________________________________________________________________________________
 $values_array = @($SerialNumber, #0
                 $test_var, #1
-                $timestamp #2
+                $version_testscript, #2
+                $timestamp #3
                 )
 
-$test_line = 'Test,host={0} test_var="{1}" {2}' -f $values_array
+$test_line = 'Test,host={0} test_var="{1}",version_testscript="{2}" {3}' -f $values_array
 
 $values_array | Format-List
 #___________________________________________________________________________________________________________________________________________________________
