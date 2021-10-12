@@ -75,6 +75,7 @@ $SerialNumber = (Get-WmiObject win32_bios | Select-Object -ExpandProperty serial
 $host_name = (Get-WmiObject Win32_OperatingSystem).CSName
 if (($SerialNumber -like '*SystemSerialNumber*') -or ($SerialNumber -like '*Defaultstring*')) {
     $SerialNumber = "{0}-{1}" -f $SerialNumber, $host_name
+}
 
 
 
