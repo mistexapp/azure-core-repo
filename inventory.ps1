@@ -158,7 +158,7 @@ if ($CPU_Model -like '*Intel(R) Xeon(R) CPU*'){
 } elseif ($CPU_Model -like '*ASUSTeK COMPUTER INC.*'){ 
     $CPU_Model = $CPU_Model -replace ([regex]::Escape('ASUSTeK COMPUTER INC. ')), "Asus "
 } elseif ($CPU_Model -like '*11th Gen Core*'){ 
-    $CPU_Model = $CPU_Model -replace ([regex]::Escape('11th Gen Core ')), "Core  "
+    $CPU_Model = $CPU_Model -replace ([regex]::Escape('11th Gen Core')), "Core"
 }
 
 $CPU_Cores = Get-WmiObject -Class Win32_Processor | Select-Object -ExpandProperty NumberOfCores
