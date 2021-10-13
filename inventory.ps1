@@ -160,7 +160,7 @@ if ($CPU_Model -like '*Intel(R) Xeon(R) CPU*'){
 } elseif ($CPU_Model -like '*Intel(R) Pentium(R) CPU*'){ 
     $CPU_Model = $CPU_Model -replace ([regex]::Escape('Intel(R) Pentium(R) CPU ')), "Pentium "
 } elseif ($CPU_Model -like '\d{2}th Gen Core'){ 
-    $CPU_Model = $CPU_Model -replace ([regex]::Escape('\d{2}th Gen Core')), "Core"
+    $CPU_Model = $CPU_Model -replace ([regex]::Escape('11th Gen Core')), "Core"
 }
 
 
