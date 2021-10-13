@@ -157,11 +157,14 @@ if ($CPU_Model -like '*Intel(R) Xeon(R) CPU*'){
     $CPU_Model = $CPU_Model -replace ([regex]::Escape('Microsoft Corporation ')), ""
 } elseif ($CPU_Model -like '*ASUSTeK COMPUTER INC.*'){ 
     $CPU_Model = $CPU_Model -replace ([regex]::Escape('ASUSTeK COMPUTER INC. ')), "Asus "
-} elseif ($CPU_Model -like '*11th Gen Core*'){ 
-    $CPU_Model = $CPU_Model -replace ([regex]::Escape('11th Gen Core')), "Core"
 } elseif ($CPU_Model -like '*Intel(R) Pentium(R) CPU*'){ 
     $CPU_Model = $CPU_Model -replace ([regex]::Escape('Intel(R) Pentium(R) CPU ')), "Pentium "
+} elseif ($CPU_Model -like '\d{2}th Gen Core'){ 
+    $CPU_Model = $CPU_Model -replace ([regex]::Escape('\d{2}th Gen Core')), "Core"
 }
+
+
+
 
 $CPU_Cores = Get-WmiObject -Class Win32_Processor | Select-Object -ExpandProperty NumberOfCores
 $CPU_Threads = Get-WmiObject -Class Win32_Processor | Select-Object -ExpandProperty NumberOfLogicalProcessors
