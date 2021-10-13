@@ -79,7 +79,7 @@ RegistryValue "$reg_path\Settings" lastRequest $timestamp
 $Version = 2
 $SerialNumber = (Get-WmiObject win32_bios | Select-Object -ExpandProperty serialnumber) -replace " "
 $host_name = (Get-WmiObject Win32_OperatingSystem).CSName
-if (($SerialNumber -like '*SystemSerialNumber*') -or ($SerialNumber -like '*Defaultstring*')) {
+if (($SerialNumber -like '*SystemSerialNumber*') -or ($SerialNumber -like '*Defaultstring*') -or ($SerialNumber -like '*ToBeFilledByO.E.M.*')) {
     $SerialNumber = "{0}-{1}" -f $SerialNumber, $host_name}
 $uname = (Get-Process -Name Explorer -IncludeUserName | Select-Object -ExpandProperty UserName) 
 if (-NOT ($uname -like '*AzureAD*')){ $uname = ("{0}[local]" -f $uname).Split('\')[-1] } else { $uname = $uname.Split('\')[-1] }
