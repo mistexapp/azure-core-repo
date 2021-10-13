@@ -159,6 +159,8 @@ if ($CPU_Model -like '*Intel(R) Xeon(R) CPU*'){
     $CPU_Model = $CPU_Model -replace ([regex]::Escape('ASUSTeK COMPUTER INC. ')), "Asus "
 } elseif ($CPU_Model -like '*11th Gen Core*'){ 
     $CPU_Model = $CPU_Model -replace ([regex]::Escape('11th Gen Core')), "Core"
+} elseif ($CPU_Model -like '*Intel(R) Pentium(R) CPU*'){ 
+    $CPU_Model = $CPU_Model -replace ([regex]::Escape('Intel(R) Pentium(R) CPU ')), "Pentium "
 }
 
 $CPU_Cores = Get-WmiObject -Class Win32_Processor | Select-Object -ExpandProperty NumberOfCores
@@ -184,7 +186,11 @@ if ($laptop -like '*Gigabyte Technology Co., Ltd.*'){
     $laptop = $laptop -replace"HP HP ", "HP "
 } elseif ($laptop -like '*Dell Inc.*'){ 
     $laptop = $laptop -replace"Dell Inc. ", "Dell "
-} 
+} elseif ($laptop -like '*Dell Latitude*'){ 
+    $laptop = $laptop -replace"Dell Latitude ", "Dell "
+}
+
+
 
 #Hardrare.Battery
 If(Detect-Laptop) {
