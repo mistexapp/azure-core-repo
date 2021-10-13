@@ -164,8 +164,6 @@ if ($CPU_Model -like '*Intel(R) Xeon(R) CPU*'){
 }
 
 
-
-
 $CPU_Cores = Get-WmiObject -Class Win32_Processor | Select-Object -ExpandProperty NumberOfCores
 $CPU_Threads = Get-WmiObject -Class Win32_Processor | Select-Object -ExpandProperty NumberOfLogicalProcessors
 $CPU_Usage = (Get-WmiObject Win32_Processor | Select -ExpandProperty LoadPercentage) -replace ",", "."
@@ -191,8 +189,9 @@ if ($laptop -like '*Gigabyte Technology Co., Ltd.*'){
     $laptop = $laptop -replace"Dell Inc. ", "Dell "
 } elseif ($laptop -like '*Dell Latitude*'){ 
     $laptop = $laptop -replace"Dell Latitude ", "Dell "
+} elseif ($laptop -like '*HP ProBook*'){ 
+    $laptop = $laptop -replace"HP ProBook ", "HP "
 }
-
 
 
 #Hardrare.Battery
