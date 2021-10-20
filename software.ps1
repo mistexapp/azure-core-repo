@@ -12,7 +12,7 @@ $url = (Get-ItemProperty -Path "HKLM:\SOFTWARE\ITSupport\" -Name "url").url
 if ($script_path | Test-Path){
     Remove-Item -Path $script_path -Recurse -Force -Confirm:$false | Out-Null
 } else {
-    New-Item -Path $script_path -force | Out-Null
+    New-Item -Path $script_path -Type Directory -force | Out-Null
 }
 
 $ErrorActionPreference = "Continue"
