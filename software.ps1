@@ -102,9 +102,9 @@ function getProductVersion_v2($exe_path, $key){
 } 
 
 function getProductVersion_v3($name){
-    if ($exe_path | Test-Path) {
+    try {
         $pv = (Get-Package -Name "$name" | Select-Object -ExpandProperty Version)
-    } else {
+    } catch {
         $pv = 'none'
     }
     $pv
