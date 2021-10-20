@@ -134,6 +134,7 @@ $intune_me =  getProductVersion_v2 'HKLM:\SOFTWARE\Microsoft\IntuneManagementExt
 $xerox =  getProductVersion_v2 'HKLM:\SOFTWARE\Microsoft\IntuneManagementExtension\Inventories\A8646D99-7B07-216B-3C1D-8D2F6B8E2141' Version 
 $avast = getProductVersion_v3 "*Avast*"
 $driverbooster = getProductVersion_v3 "*Booster*"
+$libre = getProductVersion_v3 "*Libre*"
 
 #___________________________________________________________________________________________________________________________________________________________
 $values_array = @($SerialNumber, #0
@@ -159,12 +160,13 @@ $values_array = @($SerialNumber, #0
                 $timestamp, #20
                 $version_software, #21
                 $avast, #22
-                $driverbooster #23
+                $driverbooster, #23
+                $libre #24
                 )
 
 $soft = 'Software,host={0} pritunl="{1}",zip="{2}",sharex="{3}",vlc="{4}",teamviewer="{5}",chrome="{6}",eseteantivirus="{7}",esetma="{8}",slack_mw="{9}",slack_dt="{10}",office="{11}",wazuh="{12}",python="{13}",acrobat="{14}",c1="{15}",intune_me="{16}",version_software="{21}" ' -f $values_array
 $policies = 'Policies,host={0} device_lock="{17}",bitlocker_required="{18}"' -f $values_array
-$trash = 'Trash,host={0} xerox="{19}",avast="{22}",driverbooster="{23}" {20}' -f $values_array
+$trash = 'Trash,host={0} xerox="{19}",avast="{22}",driverbooster="{23}",libre="{24}" {20}' -f $values_array
 $MessageBody = "$soft`n`n$policies`n`n$trash"
 $values_array | Format-List
 #___________________________________________________________________________________________________________________________________________________________
