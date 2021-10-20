@@ -87,7 +87,7 @@ function getProductVersion($exe_path){
     if ($exe_path | Test-Path) {
         $pv = (Get-ChildItem -Path $exe_path | Select-Object -ExpandProperty VersionInfo | Select-Object -ExpandProperty ProductVersion) -replace ",", "."
     } else {
-        $pv = 'none'
+        $pv = 'NF'
     }
     $pv
 }
@@ -96,7 +96,7 @@ function getProductVersion_v2($exe_path, $key){
     if ($exe_path | Test-Path) {
         $pv = (Get-ItemProperty -Path $exe_path -Name $key).$key
     } else {
-        $pv = 'none'
+        $pv = 'NF'
     }
     $pv
 } 
@@ -105,7 +105,7 @@ function getProductVersion_v3($name){
     try {
         $pv = (Get-Package -Name "$name" | Select-Object -ExpandProperty Version)
     } catch {
-        $pv = 'none'
+        $pv = 'NF'
     }
     $pv
 } 
