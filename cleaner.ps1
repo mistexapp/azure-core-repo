@@ -71,47 +71,11 @@ RegistryValue "$reg_path\Settings" lastRequest $timestamp
 
 #___________________________________________________________________________________________________________________________________________________________
 #Cleaner 
-$version_cleaner = 2
+$version_cleaner = 3
 $SerialNumber = (Get-WmiObject win32_bios | Select-Object -ExpandProperty serialnumber) -replace " "
 $host_name = (Get-WmiObject Win32_OperatingSystem).CSName
 if (($SerialNumber -like '*SystemSerialNumber*') -or ($SerialNumber -like '*Defaultstring*')) {
     $SerialNumber = "{0}-{1}" -f $SerialNumber, $host_name
-}
-
-# Driver Booster
-$prog = "DriverBooster"
-$booster_folder = "C:\Program Files (x86)\IObit\Driver Booster"
-if ($booster_folder | Test-Path) {
-    cd "$booster_folder\6.0.2\"
-    try {
-        .\unins000.exe /VERYSILENT /NORESTART
-        $driverbooster = " :: Uninstalled. Deleting folder"
-    } catch {
-        $driverbooster = " :: Found folder only. Deleting..."
-    }
-    cd c:\
-    sleep 20
-    Remove-Item $booster_folder -Force -Recurse -Confirm:$false
-} else {
-    $driverbooster = " :: Not Found"
-}
-
-#McAfee WebAdvisor
-$prog = "webadvisor"
-$webadvisor_folder = "C:\Program Files\McAfee\WebAdvisor\"
-if ($webadvisor_folder | Test-Path) {
-    cd $webadvisor_folder
-    try {
-        .\uninstaller.exe /s
-        $webadvisor = " :: Uninstalled. Deleting folder"
-    } catch {
-        $webadvisor = " :: Found folder only. Deleting..."
-    }
-    cd c:\
-    sleep 20
-    Remove-Item "C:\Program Files\McAfee\"  -Recurse -Force -Confirm:$false
-} else {
-    $webadvisor = " :: Not Found"
 }
 
 #___________________________________________________________________________________________________________________________________________________________
@@ -171,6 +135,18 @@ Function Telegram($BotToken, $ChatID, $Message){
     }
 }
 
+Function Sender($t, $u, $m){
+    Invoke-RestMethod -Headers @{
+        "Authorization" = "Token $t"
+        "Content-Type" = "text/plain; charset=utf-8"
+        "Accept" = "application/json"
+        } `
+                    -Method POST `
+                    -Uri  $u `
+                    -Body $m
+}
+
+
 #___________________________________________________________________________________________________________________________________________________________
 $values_array = @($SerialNumber, #0
                 $version_cleaner, #1
@@ -178,18 +154,7 @@ $values_array = @($SerialNumber, #0
                 )
 
 $MessageBody = 'Cleaner,host={0} version_cleaner="{1}" {2}' -f $values_array
-
 #___________________________________________________________________________________________________________________________________________________________
-Function Sender($t, $u, $m){
-Invoke-RestMethod -Headers @{
-    "Authorization" = "Token $t"
-    "Content-Type" = "text/plain; charset=utf-8"
-    "Accept" = "application/json"
-    } `
-                -Method POST `
-                -Uri  $u `
-                -Body $m
-}
 
 GetInfluxValues
 
@@ -199,10 +164,6 @@ Time: $raw_time
 *Version*: $version_cleaner
 *Host*: $host_name
 *SeralNumber*: $SerialNumber"
-#---------------
-#*WebAdvisor* $webadvisor
-#*Driver Booster* $driverbooster
-#[Details](http://google.com/)"
 
 Telegram $bot $chat_id $text
 Sender $token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $MessageBody
