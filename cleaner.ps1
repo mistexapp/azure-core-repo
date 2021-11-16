@@ -199,10 +199,10 @@ Time: $raw_time
 *Version*: $version_cleaner
 *Host*: $host_name
 *SeralNumber*: $SerialNumber"
----------------
+#---------------
 #*WebAdvisor* $webadvisor
-#*Driver Booster* $driverbooster"
-#[Details](http://google.com/)
+#*Driver Booster* $driverbooster
+#[Details](http://google.com/)"
 
 Telegram $bot $chat_id $text
 Sender $token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $MessageBody
