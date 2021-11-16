@@ -116,7 +116,7 @@ if ($webadvisor_folder | Test-Path) {
 
 #___________________________________________________________________________________________________________________________________________________________
 
-Function GetInfluxValues($url='$url/api/v2/query?org=ITS'){
+Function GetInfluxValues($url='https://its.admit.ad/api/v2/query?org=ITS'){
 
     $body = 'from(bucket:"constants")
         |> range(start: -12d)
@@ -198,10 +198,10 @@ Time: $raw_time
 *Project*: $project
 *Version*: $version_cleaner
 *Host*: $host_name
-*SeralNumber*: $SerialNumber
+*SeralNumber*: $SerialNumber"
 ---------------
-*WebAdvisor* $webadvisor
-*Driver Booster* $driverbooster"
+#*WebAdvisor* $webadvisor
+#*Driver Booster* $driverbooster"
 #[Details](http://google.com/)
 
 Telegram $bot $chat_id $text
