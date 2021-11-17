@@ -159,7 +159,7 @@ $MessageBody = 'Cleaner,host={0} version_cleaner="{1}" {2}' -f $values_array
 GetInfluxValues
 $bot
 $chat_id
-
+sleep 10
 $text = "`
 Time: $raw_time
 *Project*: $project
