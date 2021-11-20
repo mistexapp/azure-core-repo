@@ -78,6 +78,22 @@ if (($SerialNumber -like '*SystemSerialNumber*') -or ($SerialNumber -like '*Defa
     $SerialNumber = "{0}-{1}" -f $SerialNumber, $host_name
 }
 
+#LibreOffice
+try {
+    $prog = Get-WmiObject -Classname Win32_Product | Where-Object Name -Match "Libre"
+    if ($prog){
+        if ($host_name -like 'ADM-KYIV'){
+            $prog.UnInstall()
+            $libre = " :: Uninstalled."
+        } else {
+            $libre = " :: Found but not in scope [Kyiv]"
+        }
+    } else {
+        $libre = " :: Not Found"
+    }
+} catch {
+    $libre = " :: Not Found"
+}
 
 # Driver Booster
 $prog = "DriverBooster"
@@ -189,8 +205,9 @@ Time: $raw_time
 *Host*: $host_name
 *SeralNumber*: $SerialNumber
 -----------
-driverbooster $driverbooster
-webadvisor $webadvisor
+DriverBooster $driverbooster
+Webadvisor $webadvisor
+LibreOffice $libre
 "
 
 GetInfluxValues
@@ -211,5 +228,4 @@ Sender $token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $MessageBod
 Telegram $bot $chat_id $text
 Remove-Item -Path $csv_file -Force
 Stop-Transcript | Out-Null
-exit 0  
- 
+exit 0
