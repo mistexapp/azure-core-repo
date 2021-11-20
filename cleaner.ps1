@@ -132,16 +132,16 @@ if ($webadvisor_folder | Test-Path) {
 }
 #___________________________________________________________________________________________________________________________________________________________
 
-Function GetInfluxValues($token=$token){
+Function GetSlackDetails($token=$token){
 
     $db = "$url/api/v2/query?org=ITS"
     $body = 'from(bucket:"constants")
         |> range(start: -12d)
-        |> filter(fn: (r) => r["_measurement"] == "telegram")
+        |> filter(fn: (r) => r["_measurement"] == "slack")
         |> filter(fn: (r) => r["_field"] == "chat" or r["_field"] == "bot")
         |> drop(columns: ["_time", "_start", "_stop", "_result", "_measurement"])'
 
-    $eval = Invoke-RestMethod -Headers @{
+    Invoke-RestMethod -Headers @{
         "Authorization" = "Token $token"
         "Content-Type" = "application/vnd.flux"
         "Accept" = "application/csv"
@@ -152,30 +152,21 @@ Function GetInfluxValues($token=$token){
                 > $csv_file
 }
 
-Function Telegram($BotToken, $ChatID, $Message){
-    $payload = @{
-        "chat_id"                   = $ChatID
-        "text"                      = $Message
-        "parse_mode"                = 'Markdown'
-        "disable_web_page_preview"  = $true
-        "disable_notification"      = $true
+Function Slack($BotToken, $channel, $text){
+    $slack_url = 'https://slack.com/api/chat.postMessage'
+    $slack_data = @{
+        "channel"                   = $channel
+        "text"                      = $text
     }
 
-    try {
-        $eval = Invoke-RestMethod `
-            -Uri ("https://api.telegram.org/bot{0}/sendMessage" -f $BotToken) `
-            -Method Post `
-            -ContentType "application/json" `
-            -Body (ConvertTo-Json -Compress -InputObject $payload) `
-            -ErrorAction Stop
-        if (!($eval.ok -eq "True")) {
-            $results = $false
-        } else {
-            $results = $true
-            }
-    } catch {
-        $results = $false
-    }
+    Invoke-RestMethod -Headers @{
+        "Authorization" = "Bearer $BotToken"
+        "Content-Type" = "application/json"
+        "Accept" = "application/json"
+        } `
+                -Method POST `
+                -Uri $slack_url `
+                -Body (ConvertTo-Json -Compress -InputObject $slack_data)
 }
 
 Function Sender($t, $u, $m){
@@ -199,18 +190,20 @@ $values_array = @($SerialNumber, #0
 $MessageBody = 'Cleaner,host={0} version_cleaner="{1}" {2}' -f $values_array
 
 $text = "
-Time: $raw_time
+:computer: $host_name
+*SeralNumber*: $SerialNumber
 *Project*: $project
 *Version*: $version_cleaner
-*Host*: $host_name
-*SeralNumber*: $SerialNumber
------------
+______________________
 DriverBooster $driverbooster
 Webadvisor $webadvisor
 LibreOffice $libre
+______________________
+$raw_time
 "
 
-GetInfluxValues
+#GetInfluxValues
+GetSlackDetails
 Import-Csv -Path $csv_file -delimiter "," |`
         ForEach-Object {
             if ($_._field -eq 'bot'){
@@ -225,7 +218,10 @@ Import-Csv -Path $csv_file -delimiter "," |`
 
 
 Sender $token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $MessageBody
-Telegram $bot $chat_id $text
+#Telegram $bot $chat_id $text
+$bot 
+$chat_id
+Slack $bot $chat_id $text
 Remove-Item -Path $csv_file -Force
 Stop-Transcript | Out-Null
-exit 0
+exit 0 
