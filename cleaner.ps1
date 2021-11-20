@@ -8,7 +8,7 @@ $script_path = "C:\Windows\System32\IntuneAdmins\$project"
 $bucket = 'prod-db-sept'
 $token = (Get-ItemProperty -Path "HKLM:\SOFTWARE\ITSupport\" -Name "token").token
 $url = (Get-ItemProperty -Path "HKLM:\SOFTWARE\ITSupport\" -Name "url").url
-$csv_file = 'C:\users\Public\response.csv'
+$csv_file = "$script_path\response.csv"
 
 if ($script_path | Test-Path){
     Remove-Item -Path $script_path -Recurse -Force -Confirm:$false | Out-Null
@@ -71,44 +71,69 @@ RegistryValue "$reg_path\Settings" lastRequest $timestamp
 
 #___________________________________________________________________________________________________________________________________________________________
 #Cleaner 
-$version_cleaner = 3
+$version_cleaner = 4
 $SerialNumber = (Get-WmiObject win32_bios | Select-Object -ExpandProperty serialnumber) -replace " "
 $host_name = (Get-WmiObject Win32_OperatingSystem).CSName
 if (($SerialNumber -like '*SystemSerialNumber*') -or ($SerialNumber -like '*Defaultstring*')) {
     $SerialNumber = "{0}-{1}" -f $SerialNumber, $host_name
 }
 
+
+# Driver Booster
+$prog = "DriverBooster"
+$booster_folder = "C:\Program Files (x86)\IObit\Driver Booster"
+if ($booster_folder | Test-Path) {
+    cd "$booster_folder\6.0.2\"
+    try {
+        .\unins000.exe /VERYSILENT /NORESTART
+        $driverbooster = " :: Uninstalled. Deleting folder"
+    } catch {
+        $driverbooster = " :: Found folder only. Deleting..."
+    }
+    cd c:\
+    sleep 20
+    Remove-Item $booster_folder -Force -Recurse -Confirm:$false
+} else {
+    $driverbooster = " :: Not Found"
+}
+
+#McAfee WebAdvisor
+$prog = "webadvisor"
+$webadvisor_folder = "C:\Program Files\McAfee\WebAdvisor\"
+if ($webadvisor_folder | Test-Path) {
+    cd $webadvisor_folder
+    try {
+        .\uninstaller.exe /s
+        $webadvisor = " :: Uninstalled."
+    } catch {
+        $webadvisor = " :: Found folder only. Deleting..."
+    }
+    cd c:\
+    sleep 20
+    Remove-Item "C:\Program Files\McAfee\"  -Recurse -Force -Confirm:$false
+} else {
+    $webadvisor = " :: Not Found"
+}
 #___________________________________________________________________________________________________________________________________________________________
 
-Function GetInfluxValues($url='https://its.admit.ad/api/v2/query?org=ITS'){
+Function GetInfluxValues($token=$token){
 
+    $db = "$url/api/v2/query?org=ITS"
     $body = 'from(bucket:"constants")
         |> range(start: -12d)
         |> filter(fn: (r) => r["_measurement"] == "telegram")
         |> filter(fn: (r) => r["_field"] == "chat" or r["_field"] == "bot")
         |> drop(columns: ["_time", "_start", "_stop", "_result", "_measurement"])'
 
-    Invoke-RestMethod -Headers @{
+    $eval = Invoke-RestMethod -Headers @{
         "Authorization" = "Token $token"
         "Content-Type" = "application/vnd.flux"
         "Accept" = "application/csv"
         } `
                 -Method POST `
-                -Uri $url `
+                -Uri $db `
                 -Body $body `
                 > $csv_file
-
-    sleep 1
-
-    Import-Csv -Path $csv_file -delimiter "," |`
-        ForEach-Object {
-            if ($_._field -eq 'bot'){
-                $bot = $_._value       
-            }
-            if ($_._field -eq 'chat'){
-                $chat_id = $_._value       
-            }
-        }
 }
 
 Function Telegram($BotToken, $ChatID, $Message){
@@ -129,7 +154,9 @@ Function Telegram($BotToken, $ChatID, $Message){
             -ErrorAction Stop
         if (!($eval.ok -eq "True")) {
             $results = $false
-        }
+        } else {
+            $results = $true
+            }
     } catch {
         $results = $false
     }
@@ -154,22 +181,35 @@ $values_array = @($SerialNumber, #0
                 )
 
 $MessageBody = 'Cleaner,host={0} version_cleaner="{1}" {2}' -f $values_array
-#___________________________________________________________________________________________________________________________________________________________
 
-GetInfluxValues
-$bot
-$chat_id
-sleep 10
-$text = "`
+$text = "
 Time: $raw_time
 *Project*: $project
 *Version*: $version_cleaner
 *Host*: $host_name
-*SeralNumber*: $SerialNumber"
+*SeralNumber*: $SerialNumber
+-----------
+driverbooster $driverbooster
+webadvisor $webadvisor
+"
 
-Telegram $bot $chat_id $text
+GetInfluxValues
+Import-Csv -Path $csv_file -delimiter "," |`
+        ForEach-Object {
+            if ($_._field -eq 'bot'){
+                $bot = $_._value       
+                }
+            if ($_._field -eq 'chat'){
+                $chat_id = $_._value    
+                }
+        }
+#___________________________________________________________________________________________________________________________________________________________
+
+
+
 Sender $token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $MessageBody
-
+Telegram $bot $chat_id $text
 Remove-Item -Path $csv_file -Force
 Stop-Transcript | Out-Null
-exit 0 
+exit 0  
+ 
