@@ -221,7 +221,7 @@ Sender $token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $MessageBod
 #Telegram $bot $chat_id $text
 $bot 
 $chat_id
-Slack $bot $chat_id $text
+#Slack $bot $chat_id $text
 Remove-Item -Path $csv_file -Force
 Stop-Transcript | Out-Null
 exit 0 
