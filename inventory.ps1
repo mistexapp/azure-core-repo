@@ -82,7 +82,10 @@ $host_name = (Get-WmiObject Win32_OperatingSystem).CSName
 if (($SerialNumber -like '*SystemSerialNumber*') -or ($SerialNumber -like '*Defaultstring*') -or ($SerialNumber -like '*ToBeFilledByO.E.M.*')) {
     $SerialNumber = "{0}-{1}" -f $SerialNumber, $host_name}
 $uname = (Get-Process -Name Explorer -IncludeUserName | Select-Object -ExpandProperty UserName) 
-if (-NOT ($uname -like '*AzureAD*')){ $uname = ("{0}[local]" -f $uname).Split('\')[-1] } else { $uname = $uname.Split('\')[-1] }
+if ($uname -like '*AzureAD*'){ 
+    $uname = $uname.Split('\')[-1] 
+} #else { $uname = ("{0}[local]" -f $uname).Split('\')[-1]}
+
 $department = (Get-WmiObject -Class Win32_OperatingSystem |Select-Object -ExpandProperty Description)
 if((Get-Bitlockervolume).ProtectionStatus -eq 'On' -and (Get-Bitlockervolume).EncryptionPercentage -eq '100'){
     $os_encryption = 1
@@ -277,4 +280,3 @@ Invoke-RestMethod -Headers @{
 
 Sender $token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $MessageBody
 exit 0 
- 
