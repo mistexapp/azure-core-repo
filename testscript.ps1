@@ -106,5 +106,7 @@ Invoke-RestMethod -Headers @{
 
 Sender $token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $test_line
 echo "hhhhh"
+echo "eeeeooooo"
+
 $raw_time
 exit 0 
