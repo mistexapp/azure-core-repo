@@ -22,11 +22,13 @@ function getProduct($name){
 }
 
 
-if (($host_name -eq "adm-test-0001") -or ($host_name -eq "adm-kyiv-0143") -or ($host_name -eq "ADM-MNS0233") -or ($host_name -eq "ADM-MSK-0420")) {
-    $pv = "1C:Enterprise 8 (x86-64) (8.3.18.1741)"
-    $check_installed = getProduct $pv
+$pv_old = "*(8.3.18.1208)*"
+$pv_new = "*(8.3.18.1741)*"
+$check_old = getProduct $pv_old
+$check_new = getProduct $pv_new
 
-    if ($check_installed) {
+if ($check_old) {
+    if ($check_new) {
         Write-Host "Product is already installed." -ForegroundColor Green
         exit 9
     } else {
@@ -42,7 +44,7 @@ if (($host_name -eq "adm-test-0001") -or ($host_name -eq "adm-kyiv-0143") -or ($
         Unzip $destination 'C:\Users\Public\'
         & "$completePath\setup.exe" /S USEHWLICENSES=0 DESIGNERALLCLIENTS=0 THINCLIENT=1 THINCLIENTFILE=0 SERVER=0 WEBSERVEREXT=0 CONFREPOSSERVER=0 SERVERCLIENT=0 CONVERTER77=0
         
-        sleep 120
+        sleep 240
         Remove-Item -Path $completePath -Recurse -Force -Confirm:$false | Out-Null
         Remove-Item -Path $destination -Recurse -Force -Confirm:$false | Out-Null
         exit 0
