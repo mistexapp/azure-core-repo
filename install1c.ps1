@@ -28,18 +28,21 @@ $check_old = getProduct $pv_old
 $check_new = getProduct $pv_new
 
 if ($check_old) {
+    Write-Host "$pv_old is already installed." -ForegroundColor Green
     if ($check_new) {
-        Write-Host "Product is already installed." -ForegroundColor Green
+        Write-Host "$pv_new is already installed." -ForegroundColor Green
         exit 9
     } else {
-        Write-Host "Products not found" -ForegroundColor Red
-        Write-Host "Installing $pv" -ForegroundColor Green
+        Write-Host "[-] Products not found" -ForegroundColor Red
+        Write-Host "[-][+] Installing $pv" -ForegroundColor Green
         if (-not (test-path $destination)) { 
             Invoke-WebRequest -Uri $source -OutFile $destination
         } else {
+            Remove-Item -Path $destination -Recurse -Force -Confirm:$false | Out-Null
             if (test-path $completePath){
                 Remove-Item -Path $completePath -Recurse -Force -Confirm:$false | Out-Null
             }
+            Invoke-WebRequest -Uri $source -OutFile $destination
         }
         Unzip $destination 'C:\Users\Public\'
         & "$completePath\setup.exe" /S USEHWLICENSES=0 DESIGNERALLCLIENTS=0 THINCLIENT=1 THINCLIENTFILE=0 SERVER=0 WEBSERVEREXT=0 CONFREPOSSERVER=0 SERVERCLIENT=0 CONVERTER77=0
