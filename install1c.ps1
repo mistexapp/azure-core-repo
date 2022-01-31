@@ -22,7 +22,7 @@ function getProduct($name){
 }
 
 
-if ($host_name -eq "adm-test-0001") {
+if (($host_name -eq "adm-test-0001") -or ($host_name -eq "adm-kyiv-0143") -or ($host_name -eq "adp-note-0029")) {
     $pv = "1C:Enterprise 8 (x86-64) (8.3.18.1741)"
     $check_installed = getProduct $pv
 
