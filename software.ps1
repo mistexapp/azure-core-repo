@@ -129,10 +129,13 @@ $eseteantivirus_v =  getProductVersion_v2 'HKLM:\SOFTWARE\Microsoft\IntuneManage
 $acrobat =  getProductVersion_v2 'HKLM:\SOFTWARE\Microsoft\IntuneManagementExtension\Inventories\AC76BA86-7AD7-1049-7B44-AC0F074E4100' Version
 $chrome_v =  getProductVersion_v2 'HKLM:\SOFTWARE\Microsoft\IntuneManagementExtension\Inventories\FBA1CA29-5F56-32B9-BCAF-5C023F658346' Version
 $c1 =  getProductVersion_v2 'HKLM:\SOFTWARE\Microsoft\IntuneManagementExtension\Inventories\EC8EF2A8-4B63-4CBD-90E5-34AB21A99179' Version
+
 $intune_me =  getProductVersion_v2 'HKLM:\SOFTWARE\Microsoft\IntuneManagementExtension\Inventories\B5E9F333-9FC6-4F5C-999C-C3CDDF669A30' Version
 #trash
 $xerox =  getProductVersion_v2 'HKLM:\SOFTWARE\Microsoft\IntuneManagementExtension\Inventories\A8646D99-7B07-216B-3C1D-8D2F6B8E2141' Version 
 $avast = getProductVersion_v3 "*Avast*"
+$с1_1741 = getProductVersion_v3 "1C:Enterprise 8 (x86-64) (8.3.18.1741)"
+$с1_1208 = getProductVersion_v3 "1C:Enterprise 8 (x86-64) (8.3.18.1208)"
 $driverbooster = getProductVersion_v3 "*Booster*"
 $libre = getProductVersion_v3 "*Libre*"
 $webadvisor = getProductVersion_v3 "*WebAdvisor*"
@@ -163,10 +166,12 @@ $values_array = @($SerialNumber, #0
                 $avast, #22
                 $driverbooster, #23
                 $libre, #24
-                $webadvisor #25
+                $webadvisor, #25
+                $с1_1741, #26
+                $с1_1208 #27
                 )
 
-$soft = 'Software,host={0} pritunl="{1}",zip="{2}",sharex="{3}",vlc="{4}",teamviewer="{5}",chrome="{6}",eseteantivirus="{7}",esetma="{8}",slack_mw="{9}",slack_dt="{10}",office="{11}",wazuh="{12}",python="{13}",acrobat="{14}",c1="{15}",intune_me="{16}",version_software="{21}" ' -f $values_array
+$soft = 'Software,host={0} pritunl="{1}",zip="{2}",sharex="{3}",vlc="{4}",teamviewer="{5}",chrome="{6}",eseteantivirus="{7}",esetma="{8}",slack_mw="{9}",slack_dt="{10}",office="{11}",wazuh="{12}",python="{13}",acrobat="{14}",c1="{15}",intune_me="{16}",version_software="{21}",c1_1208="{27}",c1_1741="{26}" ' -f $values_array
 $policies = 'Policies,host={0} device_lock="{17}",bitlocker_required="{18}"' -f $values_array
 $trash = 'Trash,host={0} xerox="{19}",avast="{22}",driverbooster="{23}",libre="{24}",webadvisor="{25}" {20}' -f $values_array
 $MessageBody = "$soft`n`n$policies`n`n$trash"
