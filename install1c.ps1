@@ -42,7 +42,7 @@ if (($host_name -eq "adm-test-0001") -or ($host_name -eq "adm-kyiv-0143") -or ($
         Unzip $destination 'C:\Users\Public\'
         & "$completePath\setup.exe" /S USEHWLICENSES=0 DESIGNERALLCLIENTS=0 THINCLIENT=1 THINCLIENTFILE=0 SERVER=0 WEBSERVEREXT=0 CONFREPOSSERVER=0 SERVERCLIENT=0 CONVERTER77=0
         
-        sleep 60
+        sleep 120
         Remove-Item -Path $completePath -Recurse -Force -Confirm:$false | Out-Null
         Remove-Item -Path $destination -Recurse -Force -Confirm:$false | Out-Null
         exit 0
