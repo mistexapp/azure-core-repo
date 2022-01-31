@@ -134,8 +134,8 @@ $intune_me =  getProductVersion_v2 'HKLM:\SOFTWARE\Microsoft\IntuneManagementExt
 #trash
 $xerox =  getProductVersion_v2 'HKLM:\SOFTWARE\Microsoft\IntuneManagementExtension\Inventories\A8646D99-7B07-216B-3C1D-8D2F6B8E2141' Version 
 $avast = getProductVersion_v3 "*Avast*"
-$с1_1741 = getProductVersion_v3 "1C:Enterprise 8 (x86-64) (8.3.18.1741)"
-$с1_1208 = getProductVersion_v3 "1C:Enterprise 8 (x86-64) (8.3.18.1208)"
+$с1_1741 = getProductVersion_v3 "*(8.3.18.1741)*"
+$с1_1208 = getProductVersion_v3 "*(8.3.18.1208)*"
 $driverbooster = getProductVersion_v3 "*Booster*"
 $libre = getProductVersion_v3 "*Libre*"
 $webadvisor = getProductVersion_v3 "*WebAdvisor*"
