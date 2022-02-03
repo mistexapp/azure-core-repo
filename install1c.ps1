@@ -9,7 +9,7 @@ function Unzip($zipfile, $outpath) {
 
 function getProduct($name){
     try {
-        Get-Package -Name "$name" -ErrorAction Stop
+        #Get-Package -Name "$name" -ErrorAction Stop
         $installed = $true
     } catch {
         $installed = $false
