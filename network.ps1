@@ -170,8 +170,6 @@ $values_array = @($SerialNumber, #0
 $MessageBody = 'Network,host={0} download_speed="{1}",upload_speed="{2}",user_isp="{3}",user_city="{4}",user_country="{5}",public_ip="{6}",local_ip="{7}",mac="{8}",version_network="{9}" {10}' -f $values_array
 $values_array | Format-List
 #___________________________________________________________________________________________________________________________________________________________
-Stop-Transcript | Out-Null
-
 Function Sender($t, $u, $m){
 Invoke-RestMethod -Headers @{
     "Authorization" = "Token $t"
@@ -184,4 +182,5 @@ Invoke-RestMethod -Headers @{
 }
 
 Sender $token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $MessageBody
+Stop-Transcript | Out-Null
 exit 0 
