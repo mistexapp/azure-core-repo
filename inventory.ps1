@@ -279,5 +279,5 @@ Invoke-RestMethod -Headers @{
 }
 
 Sender $token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $MessageBody
-Stop-Transcript #| Out-Null
+Stop-Transcript | Out-Null
 exit 0 
