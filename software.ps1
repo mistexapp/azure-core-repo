@@ -1,6 +1,6 @@
-$ErrorActionPreference="SilentlyContinue"
+ $ErrorActionPreference="SilentlyContinue"
 Stop-Transcript | Out-Null
-
+ Remove-Item -Path 'HKLM:\SOFTWARE\ITSupport\Software\Settings\'
 $project = 'Software'
 $start_time = 840 #3540
 $reg_path = "HKLM:\SOFTWARE\ITSupport\$project"
@@ -83,32 +83,44 @@ if (($SerialNumber -like '*SystemSerialNumber*') -or ($SerialNumber -like '*Defa
     $SerialNumber = "{0}-{1}" -f $SerialNumber, $host_name
 } 
 #____________________
-function getProductVersion($exe_path){
-    if ($exe_path | Test-Path) {
-        $pv = (Get-ChildItem -Path $exe_path | Select-Object -ExpandProperty VersionInfo | Select-Object -ExpandProperty ProductVersion) -replace ",", "."
-    } else {
-        $pv = 'NF'
-    }
-    $pv
+Function Sender($t, $u, $m){
+Invoke-RestMethod -Headers @{
+    "Authorization" = "Token $t"
+    "Content-Type" = "text/plain; charset=utf-8"
+    "Accept" = "application/json"
+    } `
+                -Method POST `
+                -Uri  $u `
+                -Body $m
+}
+##################################################
+
+#policies
+#$device_lock =  getProductVersion_v2 'HKLM:\SOFTWARE\Microsoft\PolicyManager\current\device\DeviceLock' MaxInactivityTimeDeviceLock
+#$bitlocker_required =  getProductVersion_v2 'HKLM:\SOFTWARE\Microsoft\PolicyManager\current\device\BitLocker' RequireDeviceEncryption
+
+#soft
+
+$exceptions = @('Update','MicrosoftVisual','WindowsMaliciou')
+function val($s) {
+    $null -ne ($exceptions | ? { $s -match $_ })
 }
 
-function getProductVersion_v2($exe_path, $key){
-    if ($exe_path | Test-Path) {
-        $pv = (Get-ItemProperty -Path $exe_path -Name $key).$key
-    } else {
-        $pv = 'NF'
-    }
-    $pv
-} 
+foreach ($program in Get-Package){
+    $prog_name = ($program | Select-Object -ExpandProperty Name) -replace " " #-replace("1C", "C1")
+    #if (-not(($prog_name -like '*Update*') -or ($prog_name -like '*MicrosoftVisual*') -or ($prog_name -like '*WindowsMalicious*'))){
+    if (-not(val $prog_name)){
+        $prog_version = $program | Select-Object -ExpandProperty Version
+        $to_send = 'Software,host={0} {1}="{2}" {3}' -f $SerialNumber, $prog_name, $prog_version, $timestamp
+        echo $to_send
 
-function getProductVersion_v3($name){
-    try {
-        $pv = (Get-Package -Name "$name" | Select-Object -ExpandProperty Version)
-    } catch {
-        $pv = 'NF'
+        Sender $token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $to_send
     }
-    $pv
-} 
+}
+
+#___________________________________________________________________________________________________________________________________________________________
+
+#___________________________________________________________________________________________________________________________________________________________
 
 $raw_time
-exit 0 
+exit 0  
