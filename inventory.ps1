@@ -265,7 +265,7 @@ $monitors_line = 'Monitors,host={0} monitor1="{25}",monitor1_sn="{26}",monitor2=
 $MessageBody = "$general_line`n`n$cpu_line`n`n$memory_line`n`n$battery_line`n`n$disk_line`n`n$operationsystem_line`n`n$monitors_line"
 $values_array | Format-List
 #___________________________________________________________________________________________________________________________________________________________
-Stop-Transcript | Out-Null
+
 
 Function Sender($t, $u, $m){
 Invoke-RestMethod -Headers @{
@@ -279,4 +279,5 @@ Invoke-RestMethod -Headers @{
 }
 
 Sender $token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $MessageBody
+Stop-Transcript | Out-Null
 exit 0 
