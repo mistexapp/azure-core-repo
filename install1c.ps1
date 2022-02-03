@@ -41,7 +41,7 @@ function install($destination, $source, $completePath) {
 
 
 
-$pv_old = "*(8.3.18.1208))*"
+$pv_old = "*(8.3.18.1208)*"
 $pv_new = "*(8.3.18.1741)*"
 $check_old = getProduct $pv_old
 $check_new = getProduct $pv_new
