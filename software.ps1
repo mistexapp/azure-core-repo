@@ -101,7 +101,7 @@ Invoke-RestMethod -Headers @{
 
 #soft
 
-$exceptions = @('Update','MicrosoftVisual','WindowsMaliciou')
+$exceptions = @('Update','MicrosoftVisual','WindowsMaliciou','MicrosoftDefender')
 function val($s) {
     $null -ne ($exceptions | ? { $s -match $_ })
 }
