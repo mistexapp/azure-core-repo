@@ -102,8 +102,8 @@ Invoke-RestMethod -Headers @{
 #soft
 
 $exceptions = @('Update','WindowsMaliciou','Realtek','Synaptics','NETFramework',
-'king.com','Dolby','Goodix','KB','Fortemedia','SoundResearch','AdvancedMicroDevices','Click-to-Run',
-'ELAN','Conexant','onedrive','DynamicApplication','OpenAL','Adapter','Camera',
+'king.com','Dolby','Goodix','KB','??x64','Fortemedia','SoundResearch','AdvancedMicroDevices','Click-to-Run',
+'ELAN','Conexant','onedrive','DynamicApplication','OpenAL','Adapter','Camera','Skype'
 'Lenovo','Intel','HP','Hewlett','NVIDIA','Samsung','Microsoft','Logitech','ASUS','Surface','AMD' )
 
 #Исключения для Office и Visio phpstorm, Lenovo-System(может), amd64(попадает под AMD)
