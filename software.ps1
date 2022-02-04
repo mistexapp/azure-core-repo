@@ -113,17 +113,15 @@ function val($s) {
 }
 
 foreach ($program in Get-Package){
-    $prog_name_raw = ($program | Select-Object -ExpandProperty Name) -replace " " #-replace("1C", "C1")
-    $enc_name = [System.Text.Encoding]::UTF8.GetBytes($prog_name_raw)
-    $prog_name = [System.Text.Encoding]::UTF8.GetString($enc_name)
-    if (-not(val $prog_name)){
-        $prog_version_raw = $program | Select-Object -ExpandProperty Version
-        $enc_version = [System.Text.Encoding]::UTF8.GetBytes($prog_version_raw)
-        $prog_version = [System.Text.Encoding]::UTF8.GetString($enc_version)
-        $to_send = 'Software,host={0} {1}="{2}" {3}' -f $SerialNumber, $prog_name, $prog_version, $timestamp
-        Write-Output $to_send
+    $prog_name = ($program | Select-Object -ExpandProperty Name) -replace " " #-replace("1C", "C1")
+    if (-not ($prog_name -cmatch '[^\x20-\x7F]')){
+        if (-not(val $prog_name)){
+            $prog_version = $program | Select-Object -ExpandProperty Version
+            $to_send = 'Software,host={0} {1}="{2}" {3}' -f $SerialNumber, $prog_name, $prog_version, $timestamp
+            Write-Output $to_send
 
-        Sender $token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $to_send
+            Sender $token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $to_send
+        }
     }
 } 
 
