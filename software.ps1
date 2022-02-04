@@ -102,10 +102,10 @@ Invoke-RestMethod -Headers @{
 #soft
 
 $exceptions = @('Microsoft','Update','WindowsMaliciou','Realtek','Synaptics','NETFramework',
-'king.com','Dolby','Goodix','KB','??x64','Fortemedia','SoundResearch','AdvancedMicroDevices','Click-to-Run',
+'king.com','Dolby','Goodix','KB','x64:','Fortemedia','SoundResearch','AdvancedMicroDevices','Click-to-Run',
 'ELAN','Conexant','onedrive','DynamicApplication','OpenAL','Adapter','Camera','Skype','CCC','Java','SQL',
 'Windows','Lenovo','Intel','HP','Hewlett','NVIDIA','Samsung','Logitech','ASUS','Surface','AMD',
-'Qualcomm','Catalyst','Apple' )
+'Qualcomm','Catalyst','Apple','Philips' )
 
 #Исключения для Office и Visio phpstorm, Lenovo-System(может), amd64(попадает под AMD)
 function val($s) {
@@ -113,16 +113,20 @@ function val($s) {
 }
 
 foreach ($program in Get-Package){
-    $prog_name = ($program | Select-Object -ExpandProperty Name) -replace " " #-replace("1C", "C1")
-    #if (-not(($prog_name -like '*Update*') -or ($prog_name -like '*MicrosoftVisual*') -or ($prog_name -like '*WindowsMalicious*'))){
+    $prog_name_raw = ($program | Select-Object -ExpandProperty Name) -replace " " #-replace("1C", "C1")
+    $enc_name = [System.Text.Encoding]::UTF8.GetBytes($prog_name_raw)
+    $prog_name = [System.Text.Encoding]::UTF8.GetString($enc_name)
     if (-not(val $prog_name)){
-        $prog_version = $program | Select-Object -ExpandProperty Version
+        $prog_version_raw = $program | Select-Object -ExpandProperty Version
+        $enc_version = [System.Text.Encoding]::UTF8.GetBytes($prog_version_raw)
+        $prog_version = [System.Text.Encoding]::UTF8.GetString($enc_version)
         $to_send = 'Software,host={0} {1}="{2}" {3}' -f $SerialNumber, $prog_name, $prog_version, $timestamp
         Write-Output $to_send
 
         Sender $token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $to_send
     }
-}
+} 
+
 
 #___________________________________________________________________________________________________________________________________________________________
 
