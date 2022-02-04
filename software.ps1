@@ -101,7 +101,12 @@ Invoke-RestMethod -Headers @{
 
 #soft
 
-$exceptions = @('Update','MicrosoftVisual','WindowsMaliciou','MicrosoftDefender')
+$exceptions = @('Update','WindowsMaliciou','Realtek','Synaptics',
+'king.com','Dolby','Goodix','(KB','Fortemedia','SoundResearch','AdvancedMicroDevices','Click-to-Run',
+'ELAN','Conexant','onedrive','DynamicApplication','OpenAL','Adapter',
+'Lenovo','Intel','HP','Hewlett','NVIDIA','Samsung','Microsoft','Logitech','ASUS','Surface','AMD' )
+
+#Исключения для Office и Visio phpstorm, Lenovo-System(может), amd64(попадает под AMD)
 function val($s) {
     $null -ne ($exceptions | ? { $s -match $_ })
 }
@@ -112,7 +117,7 @@ foreach ($program in Get-Package){
     if (-not(val $prog_name)){
         $prog_version = $program | Select-Object -ExpandProperty Version
         $to_send = 'Software,host={0} {1}="{2}" {3}' -f $SerialNumber, $prog_name, $prog_version, $timestamp
-        echo $to_send
+        Write-Output $to_send
 
         Sender $token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $to_send
     }
