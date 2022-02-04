@@ -1,6 +1,6 @@
  $ErrorActionPreference="SilentlyContinue"
 Stop-Transcript | Out-Null
- Remove-Item -Path 'HKLM:\SOFTWARE\ITSupport\Software\Settings\'
+# Remove-Item -Path 'HKLM:\SOFTWARE\ITSupport\Software\Settings\'
 $project = 'Software'
 $start_time = 840 #3540
 $reg_path = "HKLM:\SOFTWARE\ITSupport\$project"
@@ -102,7 +102,7 @@ Invoke-RestMethod -Headers @{
 #soft
 
 $exceptions = @('Update','WindowsMaliciou','Realtek','Synaptics',
-'king.com','Dolby','Goodix','(KB','Fortemedia','SoundResearch','AdvancedMicroDevices','Click-to-Run',
+'king.com','Dolby','Goodix','KB','Fortemedia','SoundResearch','AdvancedMicroDevices','Click-to-Run',
 'ELAN','Conexant','onedrive','DynamicApplication','OpenAL','Adapter',
 'Lenovo','Intel','HP','Hewlett','NVIDIA','Samsung','Microsoft','Logitech','ASUS','Surface','AMD' )
 
