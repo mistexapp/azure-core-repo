@@ -76,7 +76,7 @@ RegistryValue "$reg_path\Settings" lastRequest $timestamp
 
 #___________________________________________________________________________________________________________________________________________________________
 #Get App versions
-$version_software = 2
+$version_software = 3
 $SerialNumber = (Get-WmiObject win32_bios | Select-Object -ExpandProperty serialnumber) -replace " "
 $host_name = (Get-WmiObject Win32_OperatingSystem).CSName
 if (($SerialNumber -like '*SystemSerialNumber*') -or ($SerialNumber -like '*Defaultstring*')) {
@@ -125,7 +125,8 @@ foreach ($program in Get-Package){
     }
 } 
 
-
+$ver = 'Software,host={0} version_software="{1}" {2}' -f $SerialNumber, $version_software, $timestamp
+Sender $token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $ver
 #___________________________________________________________________________________________________________________________________________________________
 
 #___________________________________________________________________________________________________________________________________________________________
