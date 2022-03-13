@@ -1,6 +1,6 @@
 $ErrorActionPreference="SilentlyContinue"
 Stop-Transcript | Out-Null
-
+#
 $project = 'Cleaner'
 $start_time = 7200 #2592000 # 30d
 $reg_path = "HKLM:\SOFTWARE\ITSupport\$project"
