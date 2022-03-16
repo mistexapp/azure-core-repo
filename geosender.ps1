@@ -94,8 +94,8 @@ while (($GeoWatcher.Status -ne 'Ready') -and ($GeoWatcher.Permission -ne 'Denied
 
 if ($GeoWatcher.Permission -eq 'Denied'){
     Write-Error = 'Access Denied for Location Information'
-    $user_latitude = "67.544658" 
-    $user_longitude = "-42.321982"
+    $user_latitude = "0" 
+    $user_longitude = "0"
 } else {
     $user_latitude = ($GeoWatcher.Position.Location | Select-Object -ExpandProperty Latitude) -replace ',', '.'
     $user_longitude = ($GeoWatcher.Position.Location | Select-Object -ExpandProperty Longitude) -replace ',', '.'

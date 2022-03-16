@@ -2,7 +2,7 @@ $ErrorActionPreference="SilentlyContinue"
 Stop-Transcript | Out-Null
 
 $project = 'Network'
-$start_time = 840 # 14 min
+$start_time = 60 # 14 min
 $reg_path = "HKLM:\SOFTWARE\ITSupport\$project"
 $script_path = "C:\Windows\System32\IntuneAdmins\$project"
 $bucket = 'prod-db-sept'
@@ -10,7 +10,9 @@ $token = (Get-ItemProperty -Path "HKLM:\SOFTWARE\ITSupport\" -Name "token").toke
 $url = (Get-ItemProperty -Path "HKLM:\SOFTWARE\ITSupport\" -Name "url").url
 
 if ($script_path | Test-Path){
-    Remove-Item -Path $script_path -Recurse -Force -Confirm:$false | Out-Null
+    if (-ne ($project -eq 'Network')){
+        Remove-Item -Path $script_path -Recurse -Force -Confirm:$false | Out-Null
+    }
 } else {
     New-Item -Path $script_path -Type Directory -force | Out-Null
 }
@@ -19,14 +21,6 @@ $ErrorActionPreference = "Continue"
 $logfile = "$script_path\$project.log"
 Start-Transcript -path $logfile -Append:$false | Out-Null
 
-#Delete old Network tasks
-#_________________________________
-Foreach ($x in ( Get-ScheduledTask | Select-Object TaskName)) {
-    if ($x -like '*Network*'){
-        $task_to_delete = $x | Select-Object -ExpandProperty TaskName
-        Unregister-ScheduledTask -TaskName $task_to_delete -Confirm:$false
-    }
-}
 #___________________________________________________________________________________________________________________________________________________________
 $raw_time = [System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId([DateTime]::Now,"Russian Standard Time")
 $timestamp = ([DateTimeOffset]$raw_time).ToUnixTimeSeconds()
@@ -114,31 +108,32 @@ if (Test-Path $SpeedTestEXEPath -PathType leaf){
 $user_isp = (($r | ConvertFrom-Json) | Select-Object -ExpandProperty isp)
 
 if ( $r -ne $null -And $user_isp -ne ''){
+    $public_ip = getSpeedtestDetails interface externalIp
+    $local_ip = getSpeedtestDetails interface internalIp
+    $mac_addr = getSpeedtestDetails interface macAddr
     $user_isp = ($r | ConvertFrom-Json) | Select-Object -ExpandProperty isp
     $user_city = getSpeedtestDetails server location
     $user_country = getSpeedtestDetails server country 
-    $Public_ip = getSpeedtestDetails interface externalIp
-    $Local_ip = getSpeedtestDetails interface internalIp
-    $mac_addr = getSpeedtestDetails interface macAddr
     $download_speed = ((getSpeedtestDetails download bandwidth) / 125000) -replace ",", "."
     $upload_speed = ((getSpeedtestDetails upload bandwidth) / 125000) -replace ",", "."
 } else {
-    $Public_ip = (Invoke-WebRequest -UseBasicParsing -uri "http://ifconfig.me/ip").Content
-    $rr = Invoke-WebRequest -UseBasicParsing -uri ("https://ipinfo.io/{0}" -f $Public_ip)
+    $public_ip = (Invoke-WebRequest -UseBasicParsing -uri "http://ifconfig.me/ip").Content
+    $rr = Invoke-WebRequest -UseBasicParsing -uri ("https://ipinfo.io/{0}" -f $public_ip)
     $network_properties = (Get-WmiObject win32_networkadapterconfiguration | 
     Select-Object -Property @{
         Name = 'IPAddress'
         Expression = {($PSItem.IPAddress[0])}
     },MacAddress | Where IPAddress -NE $null)
-    
+    $local_ip = $network_properties | Select-Object -ExpandProperty IPAddress
+    $mac_addr = $network_properties | Select-Object -ExpandProperty MacAddress
+    $user_isp = ($rr.Content | ConvertFrom-Json) | Select-Object -ExpandProperty org
     $user_city = ($rr.Content | ConvertFrom-Json) | Select-Object -ExpandProperty city
     $user_country = ($rr.Content | ConvertFrom-Json) | Select-Object -ExpandProperty country
-    $user_isp = ($rr.Content | ConvertFrom-Json) | Select-Object -ExpandProperty org
-    $Local_ip = $network_properties | Select-Object -ExpandProperty IPAddress
-    $mac_addr = $network_properties | Select-Object -ExpandProperty MacAddress 
     $download_speed = 0
     $upload_speed =  0
 }
+
+#Mistakes
 
 if ($user_city -eq 'Kiev') {$user_city = 'Kyiv'}
 if ($user_city -eq 'Gurgaon') {$user_city = 'Gurugram'}
@@ -148,10 +143,29 @@ if ($download_speed -eq '') {$download_speed = 0}
 if ($upload_speed -eq '') {$upload_speed = 0}
 if (-NOT ($mac_addr -is [String])) {
     $mac_addr=$mac_addr[0]}
-if (-NOT ($Local_ip -is [String])) {
+if (-NOT ($local_ip -is [String])) {
     $mac_addr=$mac_addr[0]}
 
-Remove-Item $DOwnloadPath
+#Unicode and non-Strings
+
+$values = @($public_ip, $local_ip, $mac_addr, 
+            $user_isp, $user_city, $user_country,
+            $download_speed, $upload_speed)
+
+foreach($v in $values){
+    if (-not ($v.GetType().Name -eq 'String')){
+        $v = 'Undefined'
+    } else {
+        if ($v -cmatch '[^\x20-\x7F]'){
+            $v = 'Undefined'
+        }
+    }
+}
+
+if (Test-Path $DOwnloadPath){
+    Remove-Item $DOwnloadPath
+} 
+
 #___________________________________________________________________________________________________________________________________________________________
 
 $values_array = @($SerialNumber, #0
@@ -160,8 +174,8 @@ $values_array = @($SerialNumber, #0
                 $user_isp, #3
                 $user_city, #4
                 $user_country, #5
-                $Public_ip, #6
-                $Local_ip, #7
+                $public_ip, #6
+                $local_ip, #7
                 $mac_addr, #8
                 $version_network, #9
                 $timestamp #10
