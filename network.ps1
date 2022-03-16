@@ -160,6 +160,10 @@ foreach($v in $values){
             $v = 'Undefined'
         }
     }
+
+    if ($v -eq 'System.Object[]'){
+        $v = 'Undefined'
+    }
 }
 
 if (Test-Path $DOwnloadPath){
