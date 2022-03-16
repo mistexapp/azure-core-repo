@@ -146,18 +146,13 @@ $values = @($public_ip, $local_ip, $mac_addr,
             $download_speed, $upload_speed)
 
 foreach($v in $values){
-    if (-not ($v.GetType().Name -eq 'String')){
-        $v = 'Undefined'
-    } else {
-        if ($v -cmatch '[^\x20-\x7F]'){
+    if (-not($v -cmatch '[^\x20-\x7F]'){
+        if ((-not ($v.GetType().Name -eq 'String')) or ($v -eq 'System.Object[]')){
             $v = 'Undefined'
         }
-    }
-
-    if ($v -eq 'System.Object[]'){
+    } else {
         $v = 'Undefined'
     }
-}
 
 if (Test-Path $download_path){
     Remove-Item $download_path
@@ -178,6 +173,7 @@ $values_array = @($SerialNumber, #0
                 $timestamp #10
                 )
 
+$values_array = $values_array -replace '[^\p{L}\p{Nd}]', '' #remove non utf-8 charters
 $MessageBody = 'Network,host={0} download_speed="{1}",upload_speed="{2}",user_isp="{3}",user_city="{4}",user_country="{5}",public_ip="{6}",local_ip="{7}",mac="{8}",version_network="{9}" {10}' -f $values_array
 $values_array | Format-List
 
