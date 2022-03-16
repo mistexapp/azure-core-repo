@@ -2,7 +2,7 @@ $ErrorActionPreference="SilentlyContinue"
 Stop-Transcript | Out-Null
 
 $project = 'Network'
-$start_time = 7200 # 2h
+$start_time = 120 # 2h
 $reg_path = "HKLM:\SOFTWARE\ITSupport\$project"
 $script_path = "C:\Windows\System32\IntuneAdmins\$project"
 $bucket = 'prod-db-sept'
