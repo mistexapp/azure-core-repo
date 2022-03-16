@@ -133,14 +133,6 @@ if ( $r -ne $null -And $user_isp -ne ''){
     $upload_speed =  0
 }
 
-#Mistakes
-
-if ($user_city -eq 'Kiev') {$user_city = 'Kyiv'}
-if ($user_city -eq 'Gurgaon') {$user_city = 'Gurugram'}
-if ($user_city -eq 'Ghaziabad') {$user_city = 'Gurugram'}
-if ($user_city -eq 'New Dehli') {$user_city = 'New Delhi'} 
-if ($download_speed -eq '') {$download_speed = 0}
-if ($upload_speed -eq '') {$upload_speed = 0}
 
 #if (-NOT ($mac_addr -is [String[]])) {
 #    [string] $mac_addr =  'Undefined' #$mac_addr | Select-Object -first 1}
@@ -188,6 +180,14 @@ $values_array = @($SerialNumber, #0
 
 $MessageBody = 'Network,host={0} download_speed="{1}",upload_speed="{2}",user_isp="{3}",user_city="{4}",user_country="{5}",public_ip="{6}",local_ip="{7}",mac="{8}",version_network="{9}" {10}' -f $values_array
 $values_array | Format-List
+
+Foreach ($x in ( Get-ScheduledTask | Select-Object TaskName)) {
+    if ($x -like '*Network*'){
+        $task_to_delete = $x | Select-Object -ExpandProperty TaskName
+        Unregister-ScheduledTask -TaskName $task_to_delete -Confirm:$false
+    }
+}
+
 #___________________________________________________________________________________________________________________________________________________________
 Function Sender($t, $u, $m){
 Invoke-RestMethod -Headers @{
