@@ -2,7 +2,7 @@ $ErrorActionPreference="SilentlyContinue"
 Stop-Transcript | Out-Null
 
 $project = 'Network'
-$start_time = 60 # 14 min
+$start_time = 7200 # 2h
 $reg_path = "HKLM:\SOFTWARE\ITSupport\$project"
 $script_path = "C:\Windows\System32\IntuneAdmins\$project"
 $bucket = 'prod-db-sept'
@@ -141,10 +141,10 @@ if ($user_city -eq 'Ghaziabad') {$user_city = 'Gurugram'}
 if ($user_city -eq 'New Dehli') {$user_city = 'New Delhi'} 
 if ($download_speed -eq '') {$download_speed = 0}
 if ($upload_speed -eq '') {$upload_speed = 0}
-if (-NOT ($mac_addr -is [String])) {
-    $mac_addr=$mac_addr[0]}
-if (-NOT ($local_ip -is [String])) {
-    $mac_addr=$mac_addr[0]}
+#if (-NOT ($mac_addr -is [String])) {
+#    $mac_addr=$mac_addr[0]}
+#if (-NOT ($local_ip -is [String])) {
+#    $mac_addr=$mac_addr[0]}
 
 #Unicode and non-Strings
 
