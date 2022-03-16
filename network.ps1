@@ -143,9 +143,9 @@ if ($download_speed -eq '') {$download_speed = 0}
 if ($upload_speed -eq '') {$upload_speed = 0}
 
 if (-NOT ($mac_addr -is [String[]])) {
-    [string] $mac_addr =  $mac_addr | Select-Object -first 1}
+    [string] $mac_addr =  'Undefined' #$mac_addr | Select-Object -first 1}
 if (-NOT ($local_ip -is [String[]])) {
-    [string] $local_ip = $local_ip | Select-Object -first 1}
+    [string] $local_ip = 'Undefined' #$local_ip | Select-Object -first 1}
 
 #Unicode and non-Strings
 
