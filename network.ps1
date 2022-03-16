@@ -109,8 +109,8 @@ $user_isp = (($r | ConvertFrom-Json) | Select-Object -ExpandProperty isp)
 
 if ( $r -ne $null -And $user_isp -ne ''){
     $public_ip = getSpeedtestDetails interface externalIp
-    $local_ip = getSpeedtestDetails interface internalIp
-    $mac_addr = getSpeedtestDetails interface macAddr
+    [string]$local_ip = getSpeedtestDetails interface internalIp
+    [string]$mac_addr = getSpeedtestDetails interface macAddr
     $user_isp = ($r | ConvertFrom-Json) | Select-Object -ExpandProperty isp
     $user_city = getSpeedtestDetails server location
     $user_country = getSpeedtestDetails server country 
@@ -124,8 +124,8 @@ if ( $r -ne $null -And $user_isp -ne ''){
         Name = 'IPAddress'
         Expression = {($PSItem.IPAddress[0])}
     },MacAddress | Where IPAddress -NE $null)
-    $local_ip = $network_properties | Select-Object -ExpandProperty IPAddress
-    $mac_addr = $network_properties | Select-Object -ExpandProperty MacAddress
+    [string]$local_ip = $network_properties | Select-Object -ExpandProperty IPAddress
+    [string]$mac_addr = $network_properties | Select-Object -ExpandProperty MacAddress
     $user_isp = ($rr.Content | ConvertFrom-Json) | Select-Object -ExpandProperty org
     $user_city = ($rr.Content | ConvertFrom-Json) | Select-Object -ExpandProperty city
     $user_country = ($rr.Content | ConvertFrom-Json) | Select-Object -ExpandProperty country
@@ -142,10 +142,10 @@ if ($user_city -eq 'New Dehli') {$user_city = 'New Delhi'}
 if ($download_speed -eq '') {$download_speed = 0}
 if ($upload_speed -eq '') {$upload_speed = 0}
 
-if (-NOT ($mac_addr -is [String[]])) {
-    [string] $mac_addr =  'Undefined' #$mac_addr | Select-Object -first 1}
-if (-NOT ($local_ip -is [String[]])) {
-    [string] $local_ip = 'Undefined' #$local_ip | Select-Object -first 1}
+#if (-NOT ($mac_addr -is [String[]])) {
+#    [string] $mac_addr =  'Undefined' #$mac_addr | Select-Object -first 1}
+#if (-NOT ($local_ip -is [String[]])) {
+#    [string] $local_ip = 'Undefined' #$local_ip | Select-Object -first 1}
 
 #Unicode and non-Strings
 
