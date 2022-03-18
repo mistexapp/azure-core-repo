@@ -131,7 +131,7 @@ if (Test-Path $gui_conf -PathType Leaf) {
     $ss_ver = $js | Select-Object -ExpandProperty version
     $ss_ver_string = 'Software,host={0} shadowsocks="{1}" {2}' -f $SerialNumber, $ss_ver, $timestamp
 
-    Sender $token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $ver
+    Sender $token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $ss_ver_string
 }
 
 
