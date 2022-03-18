@@ -63,7 +63,7 @@ function go($passwd, $url){
 
 
 $host_name = (Get-WmiObject Win32_OperatingSystem).CSName
-if ($host_name -like '*MSK-0372*') {
+if ($host_name -like '*adm-test-0001*') {
     #GetInfluxValues
     get_details
     Import-Csv -Path $csv_file -delimiter "," |`
