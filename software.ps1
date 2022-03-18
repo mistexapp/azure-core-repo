@@ -125,7 +125,7 @@ foreach ($program in Get-Package){
 }
 
 #Shadowsocks
-$gui_conf = "C:\Users\Public\ss\gui-config.json"
+$gui_conf = "C:\Users\Public\shadowsocks\gui-config.json"
 if (Test-Path $gui_conf -PathType Leaf) {
     $js = ( Get-Content $gui_conf ) | ConvertFrom-Json
     $ss_ver = $js | Select-Object -ExpandProperty version

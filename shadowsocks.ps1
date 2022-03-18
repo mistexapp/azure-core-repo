@@ -1,5 +1,5 @@
-$7ZipPath = '"C:\Program Files\7-Zip\7z.exe"'
-$zipFile = "C:\Users\Public\ss.zip"
+ $7ZipPath = '"C:\Program Files\7-Zip\7z.exe"'
+$zipFile = "C:\Users\Public\shadowsocks.zip"
 $token = (Get-ItemProperty -Path "HKLM:\SOFTWARE\ITSupport\" -Name "token").token
 $url = (Get-ItemProperty -Path "HKLM:\SOFTWARE\ITSupport\" -Name "url").url
 $csv_file = "C:\users\public\response.csv"
@@ -9,12 +9,12 @@ function create_link($path) {
 }
 
 function link(){
-    create_link "c:\Users\Public\ss\Shadowsocks.exe" -Recurse -Force -Confirm:$false | Out-Null
+    create_link "C:\Users\Public\shadowsocks\Shadowsocks.exe" -Recurse -Force -Confirm:$false | Out-Null
 }
 
 function unzip($zipFile, $passwd) {
     if (Test-Path "C:\Program Files\7-Zip\7z.exe" -PathType Leaf ) {
-        $command = "& $7ZipPath e -oC:\Users\Public\ss -y -tzip -p$passwd $zipFile"
+        $command = "& $7ZipPath e -oC:\Users\Public\shadowsocks -y -tzip -p$passwd $zipFile"
         Invoke-Expression $command | Out-Null
         sleep(4)
         link
@@ -42,17 +42,17 @@ Function get_details($token=$token){
 
 function insert_v ($srv_name, $srv_port, $srv_pwd) {
 
-    (Get-Content 'C:\Users\Public\ss\gui-config.json') `
+    (Get-Content 'C:\Users\Public\shadowsocks\gui-config.json') `
     -replace 'port_example', $srv_port `
     -replace 'srv_example', $srv_name `
     -replace 'pwd_example', $srv_pwd |
-    Out-File 'C:\Users\Public\ss\gui-config.json'
+    Out-File 'C:\Users\Public\shadowsocks\gui-config.json'
 }
 
 function go($passwd, $file_url){
-    if (-not (Test-Path "C:\Users\Public\ss\Shadowsocks.exe" -PathType Leaf )) {
-        if (Test-Path "C:\Users\Public\ss") {
-            Remove-Item "C:\Users\Public\ss" -Recurse -Force -Confirm:$false | Out-Null
+    if (-not (Test-Path "C:\Users\Public\shadowsocks\Shadowsocks.exe" -PathType Leaf )) {
+        if (Test-Path "C:\Users\Public\shadowsocks") {
+            Remove-Item "C:\Users\Public\shadowsocks" -Recurse -Force -Confirm:$false | Out-Null
         }
         $link = "C:\Users\Public\Desktop\Shadowsocks"
         if (test-path $link) { 
@@ -61,13 +61,13 @@ function go($passwd, $file_url){
         if (Test-Path $zipFile -PathType Leaf ) {
             unzip $zipFile $passwd 
         } else {
-            Write-Host "ss.zip doesn't Exist." -ForegroundColor Yellow
+            Write-Host "shadowsocks.zip doesn't Exist." -ForegroundColor Yellow
             wget $file_url -outfile $zipFile
             sleep(2)
             unzip $zipFile $passwd
         }
     } else {
-        Write-Host "SS already exists" -ForegroundColor Green
+        Write-Host "shadowsocks already exists" -ForegroundColor Green
     }
 }
 
@@ -94,14 +94,17 @@ if (-not($host_name -like '*srv*')) {
             }
 
     $file_url = "https://docs.google.com/uc?export=download&id=$file_id"
-    #go $pwd_zip $file_url
+    go $pwd_zip $file_url
     sleep(2)
-    #insert_v $srv_name $srv_port $srv_pwd
+    insert_v $srv_name $srv_port $srv_pwd
     sleep(1)
     Remove-Item $csv_file -Force -Confirm:$false | Out-Null
-    Remove-Item "C:\Users\Public\ss" -Recurse -Force -Confirm:$false | Out-Null
+    if (test-path "C:\Users\Public\ss") {
+         Remove-Item "C:\Users\Public\ss" -Recurse -Force -Confirm:$false | Out-Null
+    }
+   
 
     exit 0
 }
 
-exit 0
+exit 0 
