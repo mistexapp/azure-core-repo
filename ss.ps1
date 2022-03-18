@@ -18,6 +18,7 @@ function unzip($zipFile, $passwd) {
         Invoke-Expression $command
         sleep(4)
         link
+        Remove-Item $zipFile -Force -Confirm:$false | Out-Null
     }
 }
 
@@ -63,7 +64,7 @@ function go($passwd, $url){
 
 
 $host_name = (Get-WmiObject Win32_OperatingSystem).CSName
-if ($host_name -like '*adm-test-0001*') {
+if ($host_name -like '*MSK-0372*') {
     #GetInfluxValues
     get_details
     Import-Csv -Path $csv_file -delimiter "," |`
@@ -77,6 +78,8 @@ if ($host_name -like '*adm-test-0001*') {
             }
 
     go $pwd_arch $url
+    sleep(2)
+    Remove-Item $csv_file -Force -Confirm:$false | Out-Null
 }
 
 
