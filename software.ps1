@@ -122,7 +122,19 @@ foreach ($program in Get-Package){
             Sender $token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $to_send
         }
     }
-} 
+}
+
+#Shadowsocks
+$gui_conf = "C:\Users\Public\ss\gui-config.json"
+if (Test-Path $gui_conf -PathType Leaf) {
+    $js = ( Get-Content $gui_conf ) | ConvertFrom-Json
+    $ss_ver = $js | Select-Object -ExpandProperty version
+    $ss_ver_string = 'Software,host={0} shadowsocks="{1}" {2}' -f $SerialNumber, $ss_ver, $timestamp
+
+    Sender $token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $ver
+}
+
+
 
 $ver = 'Software,host={0} version_software="{1}" {2}' -f $SerialNumber, $version_software, $timestamp
 Sender $token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $ver
