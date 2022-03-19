@@ -118,7 +118,7 @@ foreach ($program in Get-Package){
         if (-not(val $prog_name)){
             $prog_version = $program | Select-Object -ExpandProperty Version
             $to_send = 'Software,host={0} {1}="{2}" {3}' -f $SerialNumber, $prog_name, $prog_version, $timestamp
-            $to_send = $to_send -replace '[^\p{L}\p{Nd}]', ''  #remove non utf-8 charters
+            #$to_send = $to_send -replace '[^\p{L}\p{Nd}]', ''  #remove non utf-8 charters
             Sender $token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $to_send
         }
     }
