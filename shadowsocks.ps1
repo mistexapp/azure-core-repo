@@ -1,4 +1,4 @@
- $7ZipPath = '"C:\Program Files\7-Zip\7z.exe"'
+$7ZipPath = '"C:\Program Files\7-Zip\7z.exe"'
 $zipFile = "C:\Users\Public\shadowsocks.zip"
 $token = (Get-ItemProperty -Path "HKLM:\SOFTWARE\ITSupport\" -Name "token").token
 $url = (Get-ItemProperty -Path "HKLM:\SOFTWARE\ITSupport\" -Name "url").url
@@ -100,10 +100,9 @@ if (-not($host_name -like '*srv*')) {
     sleep(1)
     Remove-Item $csv_file -Force -Confirm:$false | Out-Null
     if (test-path "C:\Users\Public\ss") {
-         Remove-Item "C:\Users\Public\ss" -Recurse -Force -Confirm:$false | Out-Null
+        Remove-Item "C:\Users\Public\ss" -Recurse -Force -Confirm:$false | Out-Null
     }
-   
-
+    
     exit 0
 }
 

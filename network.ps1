@@ -1,4 +1,4 @@
-$ErrorActionPreference="SilentlyContinue"
+ $ErrorActionPreference="SilentlyContinue"
 Stop-Transcript | Out-Null
 
 $project = 'Network'
@@ -70,7 +70,7 @@ RegistryValue "$reg_path\Settings" lastRequest $timestamp
 
 #___________________________________________________________________________________________________________________________________________________________
 #Network
-$version_network = 3
+$version_network = 4
 $SerialNumber = (Get-WmiObject win32_bios | Select-Object -ExpandProperty serialnumber) -replace " "
 $host_name = (Get-WmiObject Win32_OperatingSystem).CSName
 if (($SerialNumber -like '*SystemSerialNumber*') -or ($SerialNumber -like '*Defaultstring*')) {
@@ -134,25 +134,39 @@ if ( $r -ne $null -And $user_isp -ne ''){
 }
 
 
-#if (-NOT ($mac_addr -is [String[]])) {
-#    [string] $mac_addr =  'Undefined' #$mac_addr | Select-Object -first 1}
-#if (-NOT ($local_ip -is [String[]])) {
-#    [string] $local_ip = 'Undefined' #$local_ip | Select-Object -first 1}
+#Proxy
+function get_proxy($property){
+    $proxy_path = "Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings"
+    if (test-path $proxy_path){
+        try{
+            [string] $value = Get-ItemProperty -Path $proxy_path | Select-Object -ExpandProperty $property
+        }
+        catch {
+            [string] $value = 'Undefined'
+        }
+    }
+    return $value
+}
+$proxy_enabled = get_proxy 'ProxyEnable'
+$proxy_server = get_proxy 'ProxyServer'
 
-#Unicode and non-Strings
 
 $values = @($public_ip, $local_ip, $mac_addr, 
             $user_isp, $user_city, $user_country,
-            $download_speed, $upload_speed)
+            $download_speed, $upload_speed, 
+            $proxy_enabled, $proxy_server)
 
 foreach($v in $values){
-    if (-not($v -cmatch '[^\x20-\x7F]'){
-        if ((-not ($v.GetType().Name -eq 'String')) or ($v -eq 'System.Object[]')){
+    if ($v) {
+        if (-not($v -cmatch '[^\x20-\x7F]')){
+            if( (-not ($v.GetType().Name -eq 'String')) -or ($v -eq 'System.Object[]')){
+                $v = 'Undefined'
+            }
+        } else {
             $v = 'Undefined'
         }
-    } else {
-        $v = 'Undefined'
     }
+}
 
 if (Test-Path $download_path){
     Remove-Item $download_path
@@ -169,12 +183,14 @@ $values_array = @($SerialNumber, #0
                 $public_ip, #6
                 $local_ip, #7
                 $mac_addr, #8
-                $version_network, #9
-                $timestamp #10
+                $proxy_enabled, #9
+                $proxy_server, #10
+                $version_network, #11
+                $timestamp #12
                 )
 
 $values_array = $values_array -replace '[^\p{L}\p{Nd}]', '' #remove non utf-8 charters
-$MessageBody = 'Network,host={0} download_speed="{1}",upload_speed="{2}",user_isp="{3}",user_city="{4}",user_country="{5}",public_ip="{6}",local_ip="{7}",mac="{8}",version_network="{9}" {10}' -f $values_array
+$MessageBody = 'Network,host={0} download_speed="{1}",upload_speed="{2}",user_isp="{3}",user_city="{4}",user_country="{5}",public_ip="{6}",local_ip="{7}",mac="{8}",proxy_enabled="{9}",proxy_server="{10}",version_network="{11}" {12}' -f $values_array
 $values_array | Format-List
 
 Foreach ($x in ( Get-ScheduledTask | Select-Object TaskName)) {
@@ -199,3 +215,4 @@ Invoke-RestMethod -Headers @{
 Sender $token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $MessageBody
 Stop-Transcript | Out-Null
 exit 0 
+ 
