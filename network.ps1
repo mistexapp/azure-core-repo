@@ -152,12 +152,13 @@ $proxy_server = get_proxy 'ProxyServer'
 
 
 $values = @($public_ip, $local_ip, $mac_addr, 
-            $user_isp, $user_city, $user_country,
-            $download_speed, $upload_speed, 
-            $proxy_enabled, $proxy_server)
+            $user_isp, $user_city, $user_country)
+            #$download_speed, $upload_speed
+           # $proxy_enabled, $proxy_server)
 
 foreach($v in $values){
     if ($v) {
+        $v = $v -replace '[^\p{L}\p{Nd}]', '' #remove non utf-8 charters
         if (-not($v -cmatch '[^\x20-\x7F]')){
             if( (-not ($v.GetType().Name -eq 'String')) -or ($v -eq 'System.Object[]')){
                 $v = 'Undefined'
@@ -189,7 +190,7 @@ $values_array = @($SerialNumber, #0
                 $timestamp #12
                 )
 
-$values_array = $values_array -replace '[^\p{L}\p{Nd}]', '' #remove non utf-8 charters
+
 $MessageBody = 'Network,host={0} download_speed="{1}",upload_speed="{2}",user_isp="{3}",user_city="{4}",user_country="{5}",public_ip="{6}",local_ip="{7}",mac="{8}",proxy_enabled="{9}",proxy_server="{10}",version_network="{11}" {12}' -f $values_array
 $values_array | Format-List
 
