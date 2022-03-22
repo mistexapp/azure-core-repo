@@ -9,7 +9,7 @@ $project = "Network"
 $time = 14
 Write-Host $PSScriptRoot
 
-. ".\_check.ps1"
+. "$PSScriptRoot\_check.ps1"
 try{
     $_check = _check $time $project 
 
