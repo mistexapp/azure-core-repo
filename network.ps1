@@ -19,7 +19,7 @@ try{
     if (($_check.start) -and ($_check.start -eq 1)) {
         $logfile = "$_check.script_path\$project.log"
         Start-Transcript -path $logfile -Append:$false | Out-Null
-
+        start_project
         Write-Host $_check.raw_time -ForegroundColor DarkYellow
         
         
@@ -31,6 +31,7 @@ try{
     
 } catch {
     Write-Host "Can't check script info"
+    Write-Host $_
     Stop-Transcript | Out-Null
     exit 1
 }
@@ -187,5 +188,3 @@ function start_project {
     Stop-Transcript | Out-Null
     exit 0
 }
-
-start_project
