@@ -5,7 +5,7 @@
 #>
 #
 $ErrorActionPreference = "Continue"
-$project = "net"
+$project = "Network"
 $time = 14
 
 . ".\_check.ps1"
