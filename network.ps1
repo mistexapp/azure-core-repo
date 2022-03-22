@@ -179,6 +179,7 @@ try{
 } catch {
     Write-Host "Can't check script info"
     Write-Host $_
+} finally {
     Stop-Transcript | Out-Null
     exit 1
 }
