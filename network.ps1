@@ -76,14 +76,18 @@ function start_project {
 
     #Proxy
     function get_proxy($property){
-        $proxy_path = "Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings"
+        $proxy_path = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings"
         if (test-path $proxy_path){
             try{
-                [string] $value = Get-ItemProperty -Path $proxy_path | Select-Object -ExpandProperty $property
+                (Get-ItemProperty -Path $proxy_path -Name "ProxyEnable").ProxyEnable
             }
             catch {
-                [string] $value = 'Undefined'
+                Write-Host $_
+            } finally {
+                [string] $value = Get-ItemProperty -Path $proxy_path | Select-Object -ExpandProperty $property
             }
+        } else {
+            [string] $value = ''
         }
         return $value
     }
@@ -158,8 +162,8 @@ function start_project {
     exit 0
 }
 
-$script_check = "$PSScriptRoot\_check.ps1 $time $project"
-Invoke-Expression $script_check
+#$script_check = "$PSScriptRoot\_check.ps1 $time $project"
+#Invoke-Expression $script_check
 try{
     $_check = _check $time $project 
 
