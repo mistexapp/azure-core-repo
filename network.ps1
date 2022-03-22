@@ -162,9 +162,10 @@ function start_project {
     exit 0
 }
 
-$_check = "$PSScriptRoot\_check.ps1 $time $project"
-. "$PSScriptRoot\_check.ps1"
-Invoke-Expression "$PSScriptRoot\_check.ps1"
+$_check = &"$PSScriptRoot\_check.ps1 $time $project"
+#. "$PSScriptRoot\_check.ps1"
+#Invoke-Expression "$PSScriptRoot\_check.ps1"
+#$_check
 
 Write-Host $_check.uri
 try{
