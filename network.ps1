@@ -35,7 +35,7 @@ try{
     exit 1
 }
 
-start_project
+
 
 
 
@@ -187,3 +187,5 @@ function start_project {
     Stop-Transcript | Out-Null
     exit 0
 }
+
+start_project
