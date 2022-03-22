@@ -7,38 +7,7 @@
 $ErrorActionPreference = "Continue"
 $project = "Network"
 $time = 14
-Write-Host $PSScriptRoot
-
 . "$PSScriptRoot\_check.ps1"
-
-$script_check = "$PSScriptRoot\_check.ps1 $time $project"
-Invoke-Expression $script_check
-try{
-    $_check = _check $time $project 
-
-    if (($_check.start) -and ($_check.start -eq 1)) {
-        $logfile = "$_check.script_path\$project.log"
-        Start-Transcript -path $logfile -Append:$false | Out-Null
-        start_project
-        Write-Host $_check.raw_time -ForegroundColor DarkYellow
-        
-        
-    } else {
-        Write-Host "Exit." -ForegroundColor Red
-        Stop-Transcript | Out-Null
-        exit 1
-    }
-    
-} catch {
-    Write-Host "Can't check script info"
-    Write-Host $_
-    Stop-Transcript | Out-Null
-    exit 1
-}
-
-
-
-
 
 function start_project {
     $version_network = 5
@@ -187,4 +156,29 @@ function start_project {
     sleep(1)
     Stop-Transcript | Out-Null
     exit 0
+}
+
+$script_check = "$PSScriptRoot\_check.ps1 $time $project"
+Invoke-Expression $script_check
+try{
+    $_check = _check $time $project 
+
+    if (($_check.start) -and ($_check.start -eq 1)) {
+        $logfile = "$_check.script_path\$project.log"
+        Start-Transcript -path $logfile -Append:$false | Out-Null
+        start_project
+        Write-Host $_check.raw_time -ForegroundColor DarkYellow
+        
+        
+    } else {
+        Write-Host "Exit." -ForegroundColor Red
+        Stop-Transcript | Out-Null
+        exit 1
+    }
+    
+} catch {
+    Write-Host "Can't check script info"
+    Write-Host $_
+    Stop-Transcript | Out-Null
+    exit 1
 }
