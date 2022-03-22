@@ -72,8 +72,8 @@ function _check {
             New-ItemProperty -Path $Path -Name $VarName -Value $VarValue -Force | Out-Null
             $start_script = 1
         }
-
-        $test = [pscustomobject]@{
+        $obj = [pscustomobject]@{}
+        $obj = [pscustomobject]@{
             start = $start_script
             timestamp = $timestamp
             raw_time = $raw_time
@@ -82,7 +82,7 @@ function _check {
             url = $url
             bucket = $bucket
         }
-    $test
+    $obj
         
     }
 
