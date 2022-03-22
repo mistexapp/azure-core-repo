@@ -1,4 +1,4 @@
- <#
+  <#
     _check
 
     to check availability of resources and runtime.
@@ -72,7 +72,7 @@ function _check {
             New-ItemProperty -Path $Path -Name $VarName -Value $VarValue -Force | Out-Null
             $start_script = 1
         }
-        $obj = [pscustomobject]@{}
+
         $obj = [pscustomobject]@{
             start = $start_script
             timestamp = $timestamp
@@ -82,12 +82,17 @@ function _check {
             url = $url
             bucket = $bucket
         }
-    $obj
-        
+
+        if ($VarName -eq 'lastRequest') {
+            $obj
+        }
     }
 
     RegistryValue "$reg_path\Settings" time $start_time
-    $b = RegistryValue "$reg_path\Settings" lastRequest $timestamp
+    RegistryValue "$reg_path\Settings" lastRequest $timestamp
+
     
-    $b
+    
+    $obj
 } 
+ 
