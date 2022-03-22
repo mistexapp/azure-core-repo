@@ -56,7 +56,7 @@ function _check {
                         #Write-Host "OK! DeltaTime is [$delta]. Starting..." -ForegroundColor Green
                         New-ItemProperty -Path $Path -Name $VarName -Value $VarValue -Force | Out-Null
                     } else {
-                        #Write-Host "Passing. deltatime is [$delta] sec, but ExecuteTimeRange is [$time] sec." -ForegroundColor Red
+                        Write-Host "Passing. deltatime is [$delta] sec, but ExecuteTimeRange is [$time] sec." -ForegroundColor Red
                         $start_script = 0
                     }
                 }

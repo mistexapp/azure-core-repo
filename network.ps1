@@ -6,7 +6,7 @@
 #
 $ErrorActionPreference = "Continue"
 $project = "Network"
-$time = 14
+$time = 20
 
 
 function start_project {
