@@ -10,6 +10,9 @@ $time = 14
 Write-Host $PSScriptRoot
 
 . "$PSScriptRoot\_check.ps1"
+
+$script_check = "$PSScriptRoot\_check.ps1 $time $project"
+Invoke-Expression $script_check
 try{
     $_check = _check $time $project 
 
@@ -18,10 +21,7 @@ try{
         Start-Transcript -path $logfile -Append:$false | Out-Null
 
         Write-Host $_check.raw_time -ForegroundColor DarkYellow
-        start_project
-        sleep(1)
-        Stop-Transcript | Out-Null
-        exit 0
+        
         
     } else {
         Write-Host "Exit." -ForegroundColor Red
@@ -35,6 +35,7 @@ try{
     exit 1
 }
 
+start_project
 
 
 
@@ -182,5 +183,7 @@ function start_project {
     }
 
     Sender $_check.token "$_check.url/api/v2/write?org=ITS&bucket=$_check.bucket&precision=s" $MessageBody
+    sleep(1)
     Stop-Transcript | Out-Null
+    exit 0
 }
