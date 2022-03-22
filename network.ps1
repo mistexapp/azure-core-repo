@@ -162,10 +162,10 @@ function start_project {
     exit 0
 }
 
-#$script_check = "$PSScriptRoot\_check.ps1 $time $project"
-#Invoke-Expression $script_check
+$_check = "$PSScriptRoot\_check.ps1 $time $project"
+Invoke-Expression $_check
 try{
-    $_check = _check $time $project 
+    #$_check = _check $time $project 
 
     if (($_check.start) -and ($_check.start -eq 1)) {
         $logfile = "$_check.script_path\$project.log"
