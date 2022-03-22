@@ -7,7 +7,7 @@
 $ErrorActionPreference = "Continue"
 $project = "Network"
 $time = 14
-. "$PSScriptRoot\_check.ps1"
+
 
 function start_project {
     $version_network = 5
@@ -162,8 +162,9 @@ function start_project {
     exit 0
 }
 
-$_check = "$PSScriptRoot\_check.ps1 $time $project"
-Invoke-Expression $_check
+#$_check = "$PSScriptRoot\_check.ps1 $time $project"
+. "$PSScriptRoot\_check.ps1"
+#Invoke-Expression $_check
 
 Write-Host $_check.uri
 try{
