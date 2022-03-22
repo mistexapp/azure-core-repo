@@ -7,6 +7,7 @@
 $ErrorActionPreference = "Continue"
 $project = "Network"
 $time = 14
+Write-Host $PSScriptRoot
 
 . ".\_check.ps1"
 try{
