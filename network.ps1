@@ -1,9 +1,8 @@
- <#
+<#
     Network
-
     ip, mac, speed, proxy and isp information
 #>
-#
+
 $ErrorActionPreference = "Continue"
 $project = "Network"
 $time = 10
@@ -162,26 +161,26 @@ function start_project {
     Sender $_check.token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $MessageBody
     
     sleep(1)
-   # Stop-Transcript | Out-Null
+    Stop-Transcript | Out-Null
     exit 0
 }
 
 
+$logfile = "$_check.script_path\$project.log"
+Start-Transcript -path $logfile -Append:$false | Out-Null
 . "$PSScriptRoot\_check.ps1"
 try{
     $_check = _check $time $project 
     Write-Host $_check.start
 
     if (($_check.start) -and ($_check.start -eq 1)) {
-        $logfile = "$_check.script_path\$project.log"
-        #Start-Transcript -path $logfile -Append:$false | Out-Null
         start_project
         Write-Host $_check.raw_time -ForegroundColor DarkYellow
         
         
     } else {
         Write-Host "Exit." -ForegroundColor Red
-        #Stop-Transcript | Out-Null
+        Stop-Transcript | Out-Null
         exit 1
     }
     
@@ -189,6 +188,6 @@ try{
     Write-Host "Can't check script info"
     Write-Host $_
 } finally {
-   # Stop-Transcript | Out-Null
+    Stop-Transcript | Out-Null
     exit 1
 } 
