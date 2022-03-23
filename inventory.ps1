@@ -9,7 +9,7 @@ $time = 10
 
 function start_project {
     #General
-    $Version = 2
+    $Version = 3
     $SerialNumber = (Get-WmiObject win32_bios | Select-Object -ExpandProperty serialnumber) -replace " "
     $host_name = (Get-WmiObject Win32_OperatingSystem).CSName
     if (($SerialNumber -like '*SystemSerialNumber*') -or ($SerialNumber -like '*Defaultstring*') -or ($SerialNumber -like '*ToBeFilledByO.E.M.*')) {
