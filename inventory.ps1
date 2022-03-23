@@ -70,9 +70,13 @@ function start_project {
     $RAM_Manufacturer = (Get-CimInstance Win32_PhysicalMemory | Select-Object -ExpandProperty Manufacturer)
     if (-NOT ($RAM_Manufacturer -is [String])) {
         $RAM_Manufacturer=$RAM_Manufacturer[0]}
-    $RAM_Speed = (Get-CimInstance Win32_PhysicalMemory | Select-Object -ExpandProperty Speed)
-    if (-NOT ($RAM_Speed -is [String])) {
-        $RAM_Speed=$RAM_Speed[0]}
+    try{
+        $RAM_Speed = (Get-CimInstance Win32_PhysicalMemory | Select-Object -ExpandProperty Speed)
+        if (-NOT ($RAM_Speed -is [String])) {
+            $RAM_Speed=$RAM_Speed[0]}
+    } catch {
+        $RAM_Speed=0
+    }
 
     $ComputerMemory = Get-WmiObject -Class win32_operatingsystem
     $RAM_Usage = [math]::Round(((($ComputerMemory.TotalVisibleMemorySize - $ComputerMemory.FreePhysicalMemory)*100)/ $ComputerMemory.TotalVisibleMemorySize), 2) -replace ",", "."
@@ -207,23 +211,26 @@ function start_project {
                     -Body $m
     }
 
-    Sender $token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $MessageBody
+    $url = $_check.url
+    $bucket = $_check.bucket
+    Sender $_check.token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $MessageBody
+    sleep(1)
+    Write-Host "Finished: ", $_check.raw_time -ForegroundColor DarkYellow
     Stop-Transcript | Out-Null
     exit 0
 }
 
-$logfile = "$_check.script_path\$project.log"
-Start-Transcript -path $logfile -Append:$false | Out-Null
 . "$PSScriptRoot\_check.ps1"
 try{
-    $_check = _check $time $project 
-    Write-Host $_check.start
+    $_check = _check $time $project
+    $script_path = $_check.script_path
+    $logfile = "$script_path\$project.log"
+
+    Start-Transcript -path $logfile -Append:$false | Out-Null
 
     if (($_check.start) -and ($_check.start -eq 1)) {
+        Write-Host "Started: ", $_check.raw_time -ForegroundColor DarkGray
         start_project
-        Write-Host $_check.raw_time -ForegroundColor DarkYellow
-        
-        
     } else {
         Write-Host "Exit." -ForegroundColor Red
         Stop-Transcript | Out-Null
@@ -233,7 +240,9 @@ try{
 } catch {
     Write-Host "Can't check script info"
     Write-Host $_
-} finally {
-    Stop-Transcript | Out-Null
-    exit 1
+    try {
+        Stop-Transcript | Out-Null
+    } catch {
+        exit 1
+    }
 } 

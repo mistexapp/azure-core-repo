@@ -1,4 +1,4 @@
-<#
+ <#
     Network
     ip, mac, speed, proxy and isp information
 #>
@@ -30,10 +30,9 @@ function start_project {
     }
 
     if (Test-Path $speedtest_exe_path -PathType leaf){
-        Write-Host "SpeedTest EXE Exists, starting test" -ForegroundColor Green
         $r = RunTest 
     }else{
-        Write-Host "SpeedTest EXE Doesn't Exist, starting file download"
+        #Write-Host "SpeedTest EXE Doesn't Exist, starting file download"
         wget $download_url -outfile $download_path
         Add-Type -AssemblyName System.IO.Compression.FileSystem
         function Unzip{
@@ -130,20 +129,11 @@ function start_project {
                     $proxy_enabled,     #9
                     $proxy_server,      #10
                     $version_network,   #11
-                    $timestamp          #12
+                    $_check.timestamp   #12
                     )
 
 
     $MessageBody = 'Network,host={0} download_speed="{1}",upload_speed="{2}",user_isp="{3}",user_city="{4}",user_country="{5}",public_ip="{6}",local_ip="{7}",mac="{8}",proxy_enabled="{9}",proxy_server="{10}",version_network="{11}" {12}' -f $values_array
-
-    Foreach ($x in ( Get-ScheduledTask | Select-Object TaskName)) {
-        if ($x -like '*Network*'){
-            $task_to_delete = $x | Select-Object -ExpandProperty TaskName
-            Unregister-ScheduledTask -TaskName $task_to_delete -Confirm:$false
-        }
-    }
-
-    #___________________________________________________________________________________________________________________________________________________________
     Function Sender($t, $u, $m){
     Invoke-RestMethod -Headers @{
         "Authorization" = "Token $t"
@@ -154,30 +144,34 @@ function start_project {
                     -Uri  $u `
                     -Body $m
     }
-
-    Write-Host $_check.token "$_check.url/api/v2/write?org=ITS&bucket=$_check.bucket&precision=s"
     $url = $_check.url
     $bucket = $_check.bucket
     Sender $_check.token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $MessageBody
     
-    sleep(1)
+    Foreach ($x in ( Get-ScheduledTask | Select-Object TaskName)) {
+        if ($x -like '*Network*'){
+            $task_to_delete = $x | Select-Object -ExpandProperty TaskName
+            Unregister-ScheduledTask -TaskName $task_to_delete -Confirm:$false
+        }
+    }
+
+    Write-Host "Finished: ", $_check.raw_time -ForegroundColor DarkYellow
     Stop-Transcript | Out-Null
     exit 0
 }
 
 
-$logfile = "$_check.script_path\$project.log"
-Start-Transcript -path $logfile -Append:$false | Out-Null
 . "$PSScriptRoot\_check.ps1"
 try{
-    $_check = _check $time $project 
-    Write-Host $_check.start
+    $_check = _check $time $project
+    $script_path = $_check.script_path
+    $logfile = "$script_path\$project.log"
+
+    Start-Transcript -path $logfile -Append:$false | Out-Null
 
     if (($_check.start) -and ($_check.start -eq 1)) {
+        Write-Host "Started: ", $_check.raw_time -ForegroundColor DarkGray
         start_project
-        Write-Host $_check.raw_time -ForegroundColor DarkYellow
-        
-        
     } else {
         Write-Host "Exit." -ForegroundColor Red
         Stop-Transcript | Out-Null
@@ -187,7 +181,9 @@ try{
 } catch {
     Write-Host "Can't check script info"
     Write-Host $_
-} finally {
-    Stop-Transcript | Out-Null
-    exit 1
+    try {
+        Stop-Transcript | Out-Null
+    } catch {
+        exit 1
+    }
 } 
