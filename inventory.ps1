@@ -154,37 +154,37 @@ function start_project {
         $battery_capacity=100
     }
     #___________________________________________________________________________________________________________________________________________________________
-    $values_array = @($SerialNumber, #0
-                    $host_name, #1
-                    $uname, #2
-                    $SerialNumber, #3
-                    $Version, #4
-                    $laptop, #5
-                    $timestamp, #6
-                    $CPU_Model, #7
-                    $CPU_Usage, #8
-                    $CPU_Cores, #9
-                    $CPU_Threads, #10
-                    $RAM_Capacity, #11
-                    $RAM_Manufacturer, #12
-                    $RAM_Usage, #13
-                    $RAM_Speed, #14
-                    $battery_charging, #15
-                    $battery_capacity, #16
-                    $Disk_Size, #17
-                    $OS_Name, #18
-                    $OS_Build, #19
-                    $OS_ProductName, #20
-                    $OS_Uptime, #21
-                    $OS_Language, #22
-                    $OS_InstalledDate, #23
-                    $os_encryption, #24
-                    $monitor_name0, #25
-                    $monitor_serial0, #26
-                    $monitor_name1, #27
-                    $monitor_serial1, #28
-                    $monitor_name2, #29
-                    $monitor_serial2 #30
+    $values_array = @($SerialNumber,    #0
+                    $host_name,         #1
+                    $uname,             #2
+                    $SerialNumber,      #3
+                    $Version,           #4
+                    $laptop,            #5
+                    $_check.timestamp,  #6 
+                    $CPU_Model,         #7
+                    $CPU_Usage,         #8
+                    $CPU_Cores,         #9
+                    $CPU_Threads,       #10
+                    $RAM_Capacity,      #11
+                    $RAM_Manufacturer,  #12
+                    $RAM_Usage,         #13
+                    $RAM_Speed,         #14
+                    $battery_charging,  #15
+                    $battery_capacity,  #16
+                    $Disk_Size,         #17
+                    $OS_Name,           #18
+                    $OS_Build,          #19
+                    $OS_ProductName,    #20
+                    $OS_Uptime,         #21
+                    $OS_Language,       #22
+                    $OS_InstalledDate,  #23
+                    $os_encryption,     #24
+                    $monitor_name0,     #25
+                    $monitor_serial0,   #26
+                    $monitor_name1,     #27
+                    $monitor_serial1,   #28
+                    $monitor_name2,     #29
+                    $monitor_serial2    #30
                     )
 
     $general_line = 'General,host={0} hostname="{1}",username="{2}",serialnumber="{3}",version="{4}",laptop="{5}",encryption="{24}",request="{6}" ' -f $values_array
