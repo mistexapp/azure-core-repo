@@ -42,19 +42,20 @@ try{
 
     if (($_check.start) -and ($_check.start -eq 1)) {
         Write-Host "Started: ", $_check.raw_time -ForegroundColor DarkGray
+        #if (((Get-WmiObject Win32_OperatingSystem).CSName) -like '*test*') {
+        #    start_project }
         start_project
     } else {
         Write-Host "Exit." -ForegroundColor Red
-        Stop-Transcript | Out-Null
-        exit 1
+        try{
+            stop-transcript|out-null
+        } catch [System.InvalidOperationException]{}
     }
     
 } catch {
     Write-Host "Can't check script info"
     Write-Host $_
-    try {
-        Stop-Transcript | Out-Null
-    } catch {
-        exit 1
-    }
+    try{
+        stop-transcript|out-null
+    } catch [System.InvalidOperationException]{}
 }
