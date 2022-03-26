@@ -12,7 +12,9 @@ function _check {
     )
     
     $ErrorActionPreference="SilentlyContinue"
-    Stop-Transcript | Out-Null
+    try{
+        stop-transcript|out-null
+    } catch [System.InvalidOperationException]{}
     
     $reg_path = "HKLM:\SOFTWARE\ITSupport\$project"
     $script_path = "C:\Windows\System32\IntuneAdmins\$project"
