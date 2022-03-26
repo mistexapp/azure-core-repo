@@ -10,7 +10,7 @@ $ErrorActionPreference = "Continue"
 
 function  start_project{
     $myObject = Get-WmiObject -Class win32_operatingsystem
-    $sn = $myObject | Select-Object -ExpandProperty 'SerialNumber'
+    #$sn = (Get-WmiObject win32_bios | Select-Object -ExpandProperty serialnumber) -replace " "
     foreach ($name in (Get-WmiObject -Class win32_operatingsystem | Get-Member | Select-Object -ExpandProperty Name)) {
         if ([bool]($myObject.PSobject.Properties.name -match "$name")) {
             if (($name -notlike "FREE") -and ($name -notlike "*__*")){
@@ -22,7 +22,7 @@ function  start_project{
                 }
                 if ($prop -eq '') {$prop = 'Undefined'}
                 $timestamp = $_check.timestamp
-                $to_send = 'tst,host={0} {1}="{2}" {3}' -f $sn, $name, $prop, $timestamp
+                $to_send = 'tst,host={0} {1}="{2}" {3}' -f $_check.serial_number, $name, $prop, $timestamp
                 $to_send
 
                 . "$PSScriptRoot\_send.ps1"
