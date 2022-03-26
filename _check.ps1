@@ -1,7 +1,7 @@
-  <#
+<#
     _check
 
-    to check availability of resources and runtime.
+    for check availability of resources and runtime.
 #>
 
 function _check {
@@ -10,6 +10,9 @@ function _check {
     [int]$start_time,
     [string]$project = 'test'
     )
+    
+    $ErrorActionPreference="SilentlyContinue"
+    Stop-Transcript | Out-Null
     
     $reg_path = "HKLM:\SOFTWARE\ITSupport\$project"
     $script_path = "C:\Windows\System32\IntuneAdmins\$project"
@@ -29,6 +32,10 @@ function _check {
     #___________________________________________________________________________________________________________________________________________________________
     $raw_time = [System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId([DateTime]::Now,"Russian Standard Time")
     $timestamp = ([DateTimeOffset]$raw_time).ToUnixTimeSeconds()
+    $serial_number = (Get-WmiObject win32_bios | Select-Object -ExpandProperty serialnumber) -replace " "
+    $hostname = (Get-WmiObject Win32_OperatingSystem).CSName
+    if (($serial_number -like '*SystemSerialNumber*') -or ($serial_number -like '*Defaultstring*')) {
+        $serial_number = "{0}-{1}" -f $serial_number, $hostname}
 
     function RegistryValue($Path, $VarName, $VarValue) {
         if ($Path | Test-Path){
@@ -81,6 +88,8 @@ function _check {
             token = $token
             url = $url
             bucket = $bucket
+            serial_number = $serial_number
+            hostname = $hostname
         }
 
         if ($VarName -eq 'lastRequest') {
@@ -94,5 +103,4 @@ function _check {
     
     
     $obj
-} 
- 
+}
