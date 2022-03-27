@@ -39,8 +39,8 @@ function start_project {
 
     $obj = [PSCustomObject]@{
         serialnumber = IsValNull $_check.serial_number
-        user_latitude = IsValNull (get_coordinates 'Latitude' )
-        user_longitude = IsValNull (get_coordinates 'Longitude' )
+        latitude = IsValNull (get_coordinates 'Latitude' )
+        longitude = IsValNull (get_coordinates 'Longitude' )
         map_url = IsValNull ("https://www.google.com/maps/search/?api=1&query={0},{1}" -f $user_latitude, $user_longitude)
         geo_version = IsValNull $version
     }

@@ -33,4 +33,3 @@ function _send($project, $obj) {
   
   fuuu $token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $m
 }
- 
