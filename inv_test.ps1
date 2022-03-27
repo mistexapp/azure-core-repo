@@ -22,7 +22,7 @@ function  start_project{
                 }
                 if ($prop -eq '') {$prop = 'Undefined'}
                 $timestamp = $_check.timestamp
-                $to_send = 'Inventory,host={0} {1}="{2}" {3}' -f $_check.serial_number, $name, $prop, $timestamp
+                $to_send = 'TstInv,host={0} {1}="{2}" {3}' -f $_check.serial_number, $name, $prop, $timestamp
                 $to_send
 
                 . "$PSScriptRoot\_send.ps1"
