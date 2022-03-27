@@ -1,10 +1,10 @@
 <#
-    Project Name: Inventory
-    Version: 4
+    Project Name: Test
+    Version: 1
 #>
 
 
-$project = "IIInv"
+$project = "Test"
 $time = 10
 $ErrorActionPreference = "Continue"
 
@@ -43,8 +43,8 @@ try{
     if (($_check.start) -and ($_check.start -eq 1)) {
         Write-Host "Started: ", $_check.raw_time -ForegroundColor DarkGray
         if (((Get-WmiObject Win32_OperatingSystem).CSName) -like '*test*') {
-            start_project }
-        #start_project
+            start_project 
+        }
     } else {
         Write-Host "Exit." -ForegroundColor Red
         try{

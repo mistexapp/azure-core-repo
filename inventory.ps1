@@ -1,223 +1,74 @@
 ﻿<#
-    Network
-    ip, mac, speed, proxy and isp information
+    Project Name: Inventory
+    Version: 4
 #>
 
-$ErrorActionPreference = "Continue"
 $project = "Inventory"
-$time = 10
+$time = 840
+$ErrorActionPreference = "Continue"
 
-function start_project {
-    #General
-    $Version = 3
-    $SerialNumber = (Get-WmiObject win32_bios | Select-Object -ExpandProperty serialnumber) -replace " "
-    $host_name = (Get-WmiObject Win32_OperatingSystem).CSName
-    if (($SerialNumber -like '*SystemSerialNumber*') -or ($SerialNumber -like '*Defaultstring*') -or ($SerialNumber -like '*ToBeFilledByO.E.M.*')) {
-        $SerialNumber = "{0}-{1}" -f $SerialNumber, $host_name}
-    $uname = (Get-Process -Name Explorer -IncludeUserName | Select-Object -ExpandProperty UserName) 
-    if ($uname -like '*AzureAD*'){ 
-        $uname = $uname.Split('\')[-1] 
-    } #else { $uname = ("{0}[local]" -f $uname).Split('\')[-1]}
+function  start_project{
+    $version = "4"
 
-    #$department = (Get-WmiObject -Class Win32_OperatingSystem |Select-Object -ExpandProperty Description)
-    if((Get-Bitlockervolume).ProtectionStatus -eq 'On' -and (Get-Bitlockervolume).EncryptionPercentage -eq '100'){
-        $os_encryption = 1
-    } else {
-        $os_encryption = 0
-    }
-
-    #OS details
-    $OS_Name = "Windows"
-    $OS_ProductName = (Get-WmiObject Win32_OperatingSystem).Caption -creplace "^.*?Windows"
-    $OS_Build = ([System.Environment]::OSVersion.Version | Select-Object -ExpandProperty Build)
     $uptime_object = (get-date) - (gcim Win32_OperatingSystem).LastBootUpTime | Select-Object Days, Hours, Minutes, Seconds
-    $OS_Uptime = "{0} days {1}:{2}" -f $uptime_object.Days, $uptime_object.Hours, $uptime_object.Minutes
-    $OS_Language = GET-WinSystemLocale | Select-Object -ExpandProperty Name
-    $OS_InstalledDate = (([WMI]'').ConvertToDateTime((Get-WmiObject Win32_OperatingSystem).InstallDate).ToString('dd.MM.yyyy'))
-    #$userslist = New-Object Collections.Generic.List[String]
+    $win32_operatingsystem = Get-WmiObject -Class win32_operatingsystem
+    $win32_physicalmemory = Get-CimInstance -Class Win32_PhysicalMemory
+    $win32_processor = Get-WmiObject -Class Win32_Processor
+    $win32_logicaldisk = Get-WmiObject Win32_LogicalDisk -Filter "DeviceID='C:'"
+    $win32_computersystem = Get-WmiObject -Class Win32_ComputerSystem
+
+    function IsValNull ($v) {
+        if ($v -is [system.array]) {
+            $v = $v[0]
+        }
+        if (-not ($v)) {
+            $v = 'Undefined'
+        }
+        [string]$v
+    }
     
-    #Hardware
-    Function Detect-Laptop{
-        Param( [string]$computer = “localhost” )
-        $isLaptop = $false
-        if(Get-WmiObject -Class win32_systemenclosure -ComputerName $computer | Where-Object { $_.chassistypes -eq 9 -or $_.chassistypes -eq 10 -or $_.chassistypes -eq 14})
-        {
-            $isLaptop = $true
-        }
-        $isLaptop
-    } 
-    #Hardware.Monitors
-    function Decode {
-        If ($args[0] -is [System.Array]) {
-            [System.Text.Encoding]::ASCII.GetString($args[0])
-        }
-        Else {
-            "-"
-        }
+    $obj = [pscustomobject]@{
+        version = IsValNull $version
+        request = IsValNull $_check.timestamp
+
+        serialnumber = IsValNull $_check.serial_number
+        hostname = IsValNull $win32_operatingsystem.CSName
+        username = IsValNull (Get-Process -Name Explorer -IncludeUserName | Select-Object -ExpandProperty UserName)
+        laptop =  IsValNull ("{0} {1}" -f  $win32_computersystem.Manufacturer, $win32_computersystem.Model) 
+        
+        os_name = "Windows"
+        os_pn = IsValNull ($win32_operatingsystem.Caption -creplace "^.*?Windows ")
+        os_build = IsValNull $win32_operatingsystem.BuildNumber
+        os_uptime = IsValNull ("{0} days {1}:{2}" -f $uptime_object.Days, $uptime_object.Hours, $uptime_object.Minutes)
+        os_language = IsValNull (GET-WinSystemLocale | Select-Object -ExpandProperty Name)
+        os_installeddate = IsValNull (([WMI]'').ConvertToDateTime($win32_operatingsystem.InstallDate).ToString('dd.MM.yyyy'))
+
+        ram_speed = IsValNull $win32_physicalmemory.Speed
+        ram_usage = IsValNull ([math]::Round(((($win32_operatingsystem.TotalVisibleMemorySize - $win32_operatingsystem.FreePhysicalMemory)*100)/ $win32_operatingsystem.TotalVisibleMemorySize), 2) -replace ",", ".")
+        ram_capacity = IsValNull ( ($win32_physicalmemory | Measure-Object -Property capacity -Sum).sum /1gb )
+        ram_manufacturer = IsValNull $win32_physicalmemory.Manufacturer
+
+        cpu_model = IsValNull (Get-WMIObject win32_Processor | Select-Object -ExpandProperty name)
+        cpu_cores = IsValNull $win32_processor.NumberOfCores
+        cpu_usage = IsValNull ($win32_processor.LoadPercentage -replace ",", ".")
+        cpu_threads = IsValNull $win32_processor.NumberOfLogicalProcessors
+
+        disk_size = IsValNull ([math]::Round($win32_logicaldisk.Size /1gb))
+        disk_dirty =  IsValNull ([string]$win32_logicaldisk.VolumeDirty)
+        disk_usage = IsValNull ([math]::Round((($win32_logicaldisk.Size - $win32_logicaldisk.FreeSpace) * 100) / $win32_logicaldisk.Size) )
     }
 
-    $monitors_obj = Get-WmiObject WmiMonitorID -Namespace root\wmi
-
-    $monitor_name0 = Decode $monitors_obj[0].UserFriendlyName -notmatch 0
-    $monitor_serial0 = Decode $monitors_obj[0].SerialNumberID -notmatch 0
-    $monitor_name1 = Decode $monitors_obj[1].UserFriendlyName -notmatch 0
-    $monitor_serial1 = Decode $monitors_obj[1].SerialNumberID -notmatch 0
-    $monitor_name2 = Decode $monitors_obj[2].UserFriendlyName -notmatch 0
-    $monitor_serial2 = Decode $monitors_obj[2].SerialNumberID -notmatch 0 
-
-    #Hardware.RAM
-    $RAM_Capacity = (Get-CimInstance Win32_PhysicalMemory | Measure-Object -Property capacity -Sum).sum /1gb
-    $RAM_Manufacturer = (Get-CimInstance Win32_PhysicalMemory | Select-Object -ExpandProperty Manufacturer)
-    if (-NOT ($RAM_Manufacturer -is [String])) {
-        $RAM_Manufacturer=$RAM_Manufacturer[0]}
-    try{
-        $RAM_Speed = (Get-CimInstance Win32_PhysicalMemory | Select-Object -ExpandProperty Speed)
-        if (-NOT ($RAM_Speed -is [String])) {
-            $RAM_Speed=$RAM_Speed[0]}
-    } catch {
-        $RAM_Speed=0
+    $obj | Format-Table
+    $m = "TestInv2,host={0} " -f $obj.serialnumber
+    foreach ($x in ($obj | Get-Member -MemberType NoteProperty) | Select-Object -ExpandProperty Name) {
+        $string1 = '{0}="{1}",' -f $x, $obj.$x
+        $m += $string1
     }
+    $m = $m.Substring(0,$m.Length-1)
+    $m += " {0}" -f $_check.timestamp
 
-    $ComputerMemory = Get-WmiObject -Class win32_operatingsystem
-    $RAM_Usage = [math]::Round(((($ComputerMemory.TotalVisibleMemorySize - $ComputerMemory.FreePhysicalMemory)*100)/ $ComputerMemory.TotalVisibleMemorySize), 2) -replace ",", "."
-
-    #Hardware.CPU
-
-    $CPU_Model = (Get-WMIObject win32_Processor | Select-Object -ExpandProperty name) 
-    if ($CPU_Model -like '*Intel(R) Xeon(R) CPU*'){ 
-        $CPU_Model = $CPU_Model -replace ([regex]::Escape('Intel(R) Xeon(R) CPU ')), "Xeon "
-    } elseif ($CPU_Model -like '*Eight-Core Processor*'){ 
-        $CPU_Model = $CPU_Model -replace ([regex]::Escape('Eight-Core Processor')), ""
-    } elseif ($CPU_Model -like '*Intel(R) Core(TM)*'){ 
-        $CPU_Model = $CPU_Model -replace ([regex]::Escape('Intel(R) Core(TM) ')), "Core "
-    } elseif ($CPU_Model -like '*Microsoft Corporation*'){ 
-        $CPU_Model = $CPU_Model -replace ([regex]::Escape('Microsoft Corporation ')), ""
-    } elseif ($CPU_Model -like '*ASUSTeK COMPUTER INC.*'){ 
-        $CPU_Model = $CPU_Model -replace ([regex]::Escape('ASUSTeK COMPUTER INC. ')), "Asus "
-    } elseif ($CPU_Model -like '*Intel(R) Pentium(R) CPU*'){ 
-        $CPU_Model = $CPU_Model -replace ([regex]::Escape('Intel(R) Pentium(R) CPU ')), "Pentium "
-    } elseif ($CPU_Model -like '\d{2}th Gen Core'){ 
-        $CPU_Model = $CPU_Model -replace ([regex]::Escape('11th Gen Core')), "Core"
-    }
-
-
-    $CPU_Cores = Get-WmiObject -Class Win32_Processor | Select-Object -ExpandProperty NumberOfCores
-    $CPU_Threads = Get-WmiObject -Class Win32_Processor | Select-Object -ExpandProperty NumberOfLogicalProcessors
-    $CPU_Usage = (Get-WmiObject Win32_Processor | Select-Object -ExpandProperty LoadPercentage) -replace ",", "."
-    if (-NOT ($CPU_Usage -is [String])) {
-        $CPU_Usage="0"}
-
-    #Hardware.Disk-C
-    foreach ($disk in (Get-WmiObject Win32_LogicalDisk -Filter "DeviceID='C:'" | Select-Object Size,FreeSpace )){
-        $Disk_Size = [math]::Round($disk.Size /1gb)
-        #$Disk_Usage = [math]::Round((($disk.Size - $disk.FreeSpace) * 100) / $disk.Size)
-    }
-
-    #Hardware.LaptopModel
-    $l_model = (Get-WmiObject Win32_ComputerSystem).model
-    $l_manufacturer = (Get-WmiObject Win32_ComputerSystem).manufacturer
-    $laptop = "{0} {1}" -f $l_manufacturer, $l_model
-
-    if ($laptop -like '*Gigabyte Technology Co., Ltd.*'){ 
-        $laptop = $laptop -replace "Gigabyte Technology Co., Ltd. ", "Gigabyte "
-    } elseif ($laptop -like '*HP HP*'){ 
-        $laptop = $laptop -replace"HP HP ", "HP "
-    } elseif ($laptop -like '*Dell Inc.*'){ 
-        $laptop = $laptop -replace"Dell Inc. ", "Dell "
-    } elseif ($laptop -like '*Dell Latitude*'){ 
-        $laptop = $laptop -replace"Dell Latitude ", "Dell "
-    } elseif ($laptop -like '*HP ProBook*'){ 
-        $laptop = $laptop -replace"HP ProBook ", "HP "
-    }
-
-    #Hardrare.Battery
-    If(Detect-Laptop) {
-        $BattAssembly = [Windows.Devices.Power.Battery,Windows.Devices.Power.Battery,ContentType=WindowsRuntime]
-        Try {
-            $Report = [Windows.Devices.Power.Battery]::AggregateBattery.GetReport()
-            If ($Report.Status -ne "NotPresent"){
-                $pbmax = [convert]::ToDouble($Report.FullChargeCapacityInMilliwattHours)
-                $pbvalue = [convert]::ToDouble($Report.RemainingCapacityInMilliwattHours)
-                $battery_capacity = [int][math]::Round( (($pbvalue / $pbmax) *100))
-                $battery_charging = ($Report.Status  | Out-String).Trim()
-                if ($battery_charging -eq 'Idle') { $battery_charging = 'Discharging' }
-            } Else {
-                $battery_charging = '----'
-                $battery_capacity = 0.0001
-            }
-        } Catch {
-            $battery_charging = '----'
-            $battery_capacity = 0.0001
-        }
-    } Else {
-        $battery_charging = 'No batteries'
-        $battery_capacity=100
-    }
-    #___________________________________________________________________________________________________________________________________________________________
-    $values_array = @($SerialNumber,    #0
-                    $host_name,         #1
-                    $uname,             #2
-                    $SerialNumber,      #3
-                    $Version,           #4
-                    $laptop,            #5
-                    $_check.timestamp,  #6 
-                    $CPU_Model,         #7
-                    $CPU_Usage,         #8
-                    $CPU_Cores,         #9
-                    $CPU_Threads,       #10
-                    $RAM_Capacity,      #11
-                    $RAM_Manufacturer,  #12
-                    $RAM_Usage,         #13
-                    $RAM_Speed,         #14
-                    $battery_charging,  #15
-                    $battery_capacity,  #16
-                    $Disk_Size,         #17
-                    $OS_Name,           #18
-                    $OS_Build,          #19
-                    $OS_ProductName,    #20
-                    $OS_Uptime,         #21
-                    $OS_Language,       #22
-                    $OS_InstalledDate,  #23
-                    $os_encryption,     #24
-                    $monitor_name0,     #25
-                    $monitor_serial0,   #26
-                    $monitor_name1,     #27
-                    $monitor_serial1,   #28
-                    $monitor_name2,     #29
-                    $monitor_serial2    #30
-                    )
-
-    $general_line = 'General,host={0} hostname="{1}",username="{2}",serialnumber="{3}",version="{4}",laptop="{5}",encryption="{24}",request="{6}" ' -f $values_array
-    $cpu_line = 'CPU,host={0} cpu_model="{7}",cpu_usage="{8}",cpu_cores="{9}",cpu_threads=" {10}"' -f $values_array
-    $memory_line = 'Memory,host={0} mem_capacity="{11}",mem_manufacturer="{12}",mem_usage="{13}",mem_speed="{14}"' -f $values_array
-    $battery_line = 'Battery,host={0} batt_charging="{15}",batt_capacity="{16}"' -f $values_array
-    $disk_line = 'Disk,host={0} disks="{17}"' -f $values_array
-    $operationsystem_line = 'OperationSystem,host={0} os_name="{18}",os_build="{19}",os_product_name="{20}",os_uptime="{21}",os_language="{22}",os_installed_date="{23}"' -f $values_array
-    $monitors_line = 'Monitors,host={0} monitor1="{25}",monitor1_sn="{26}",monitor2="{27}",monitor2_sn="{28}",monitor3="{29}",monitor3_sn="{30}" {6}' -f $values_array
-
-    $MessageBody = "$general_line`n`n$cpu_line`n`n$memory_line`n`n$battery_line`n`n$disk_line`n`n$operationsystem_line`n`n$monitors_line"
-    $values_array | Format-List
-    #___________________________________________________________________________________________________________________________________________________________
-
-
-    Function Sender($t, $u, $m){
-    Invoke-RestMethod -Headers @{
-        "Authorization" = "Token $t"
-        "Content-Type" = "text/plain; charset=utf-8"
-        "Accept" = "application/json"
-        } `
-                    -Method POST `
-                    -Uri  $u `
-                    -Body $m
-    }
-
-    $url = $_check.url
-    $bucket = $_check.bucket
-    Sender $_check.token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $MessageBody
-    sleep(1)
-    Write-Host "Finished: ", $_check.raw_time -ForegroundColor DarkYellow
-    Stop-Transcript | Out-Null
-    exit 0
+    . "$PSScriptRoot\_send.ps1"
+    _send $m
 }
 
 . "$PSScriptRoot\_check.ps1"
@@ -229,20 +80,20 @@ try{
     Start-Transcript -path $logfile -Append:$false | Out-Null
 
     if (($_check.start) -and ($_check.start -eq 1)) {
-        Write-Host "Started: ", $_check.raw_time -ForegroundColor DarkGray
-        start_project
+        if ( ((Get-WmiObject Win32_OperatingSystem).CSName) -like '*srv*') {
+            Write-Host "Started: ", $_check.raw_time -ForegroundColor DarkGray
+            start_project 
+        }
     } else {
         Write-Host "Exit." -ForegroundColor Red
-        Stop-Transcript | Out-Null
-        exit 1
+        try { stop-transcript|out-null }
+        catch [System.InvalidOperationException]{}
     }
     
 } catch {
     Write-Host "Can't check script info"
     Write-Host $_
-    try {
-        Stop-Transcript | Out-Null
-    } catch {
-        exit 1
-    }
+    try{
+        stop-transcript|out-null
+    } catch [System.InvalidOperationException]{}
 } 
