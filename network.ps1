@@ -115,19 +115,9 @@ function start_project {
         proxy_server    = IsValNull (get_proxy 'ProxyServer')
         version_network = IsValNull $version_network
     }
-
-    $obj | Format-Table
-    $obj
-    $m = "Network,host={0} " -f $obj.serialnumber
-    foreach ($x in ($obj | Get-Member -MemberType NoteProperty) | Select-Object -ExpandProperty Name) {
-        $string1 = '{0}="{1}",' -f $x, $obj.$x
-        $m += $string1
-    }
-    $m = $m.Substring(0,$m.Length-1)
-    $m += " {0}" -f $_check.timestamp
-
+    
     . "$PSScriptRoot\_send.ps1"
-    _send $m
+    _send $project $obj
 }
 
 

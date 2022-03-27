@@ -1,6 +1,6 @@
 ﻿<#
     Project Name: Inventory
-    Version: 4
+    Version: 5
 #>
 
 $project = "Inventory"
@@ -8,7 +8,7 @@ $time = 840
 $ErrorActionPreference = "Continue"
 
 function  start_project{
-    $version = "4"
+    $version = 5
 
     $uptime_object = (get-date) - (gcim Win32_OperatingSystem).LastBootUpTime | Select-Object Days, Hours, Minutes, Seconds
     $win32_operatingsystem = Get-WmiObject -Class win32_operatingsystem
@@ -67,17 +67,8 @@ function  start_project{
         disk_usage = IsValNull ([math]::Round((($win32_logicaldisk.Size - $win32_logicaldisk.FreeSpace) * 100) / $win32_logicaldisk.Size) )
     }
 
-    $obj | Format-Table
-    $m = "General,host={0} " -f $obj.serialnumber
-    foreach ($x in ($obj | Get-Member -MemberType NoteProperty) | Select-Object -ExpandProperty Name) {
-        $string1 = '{0}="{1}",' -f $x, $obj.$x
-        $m += $string1
-    }
-    $m = $m.Substring(0,$m.Length-1)
-    $m += " {0}" -f $_check.timestamp
-
     . "$PSScriptRoot\_send.ps1"
-    _send $m
+    _send $project $obj
 }
 
 . "$PSScriptRoot\_check.ps1"

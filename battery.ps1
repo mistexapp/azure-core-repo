@@ -5,10 +5,23 @@
 
 
 $project = "Battery"    #Folder, Registry etc.
-$time = 840             #15m
+$time = 840               #15m
 $ErrorActionPreference = "Continue"
 
 function  start_project{
+
+    function IsValNull ($v) {
+        if ($v -is [system.array]) {
+            $v = $v[0]
+        }
+        if (-not ($v)) {
+            $v = 'Undefined'
+        }
+        if ($v -cmatch '[^\x20-\x7F]'){
+            $v = 'Undefined'
+        }
+        [string]$v
+    }
 
     function islaptop{
         Param( [string]$computer = "localhost" )
@@ -45,10 +58,13 @@ function  start_project{
         $battery_capacity=100
     }
 
+    $obj = [PSCustomObject]@{
+        serialnumber = IsValNull $_check.serial_number
+        batt_charging = IsValNull $battery_charging
+        batt_capacity = IsValNull $batt_capacity
+    }
     . "$PSScriptRoot\_send.ps1"
-    $values_array = @($_check.serial_number, $battery_charging, $batt_capacity)
-    $m = 'Battery,host={0} batt_charging="{1}",batt_capacity="{2}"' -f $values_array
-    _send $m
+    _send $project $obj
 }
 
 . "$PSScriptRoot\_check.ps1"
@@ -79,4 +95,4 @@ try{
     try{
         stop-transcript|out-null
     } catch [System.InvalidOperationException]{}
-} 
+}  
