@@ -16,6 +16,7 @@ function  start_project{
     $win32_processor = Get-WmiObject -Class Win32_Processor
     $win32_logicaldisk = Get-WmiObject Win32_LogicalDisk -Filter "DeviceID='C:'"
     $win32_computersystem = Get-WmiObject -Class Win32_ComputerSystem
+    $bitlocker = Get-Bitlockervolume
 
     function IsValNull ($v) {
         if ($v -is [system.array]) {
@@ -26,12 +27,20 @@ function  start_project{
         }
         [string]$v
     }
-    
+
+    function encryption ($status, $percentage) {
+        if(($status -eq 'On') -and ($percentage -eq '100')){
+            $os_encryption = 1
+        } else { $os_encryption = 0 }
+        [string]$os_encryption
+    }
+
     $obj = [pscustomobject]@{
         version = IsValNull $version
         request = IsValNull $_check.timestamp
 
         serialnumber = IsValNull $_check.serial_number
+        encryption = IsValNull (encryption  $bitlocker.ProtectionStatus  $bitlocker.EncryptionPercentage )
         hostname = IsValNull $win32_operatingsystem.CSName
         username = IsValNull (Get-Process -Name Explorer -IncludeUserName | Select-Object -ExpandProperty UserName)
         laptop =  IsValNull ("{0} {1}" -f  $win32_computersystem.Manufacturer, $win32_computersystem.Model) 
