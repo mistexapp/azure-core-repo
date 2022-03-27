@@ -1,4 +1,4 @@
- <#
+<#
     Network
     ip, mac, speed, proxy and isp information
 #>
@@ -9,7 +9,7 @@ $time = 10
 
 
 function start_project {
-    $version_network = 5
+    $version_network = 6
     $SerialNumber = (Get-WmiObject win32_bios | Select-Object -ExpandProperty serialnumber) -replace " "
     $host_name = (Get-WmiObject Win32_OperatingSystem).CSName
     if (($SerialNumber -like '*SystemSerialNumber*') -or ($SerialNumber -like '*Defaultstring*')) {
@@ -19,6 +19,19 @@ function start_project {
     $download_path = "C:\Windows\System32\IntuneAdmins\Network\SpeedTest.Zip"
     $extract_to_path = "C:\Windows\System32\IntuneAdmins\Network\SpeedTest"
     $speedtest_exe_path = "C:\Windows\System32\IntuneAdmins\Network\SpeedTest\speedtest.exe"
+
+    function IsValNull ($v) {
+        if ($v -is [system.array]) {
+            $v = $v[0]
+        }
+        if (-not ($v)) {
+            $v = 'Undefined'
+        }
+        if ($v -cmatch '[^\x20-\x7F]'){
+            $v = 'Undefined'
+        }
+        [string]$v
+    }
     function RunTest(){
         $test = & $speedtest_exe_path --accept-license --format=json
         $test
@@ -46,29 +59,29 @@ function start_project {
     $user_isp = (($r | ConvertFrom-Json) | Select-Object -ExpandProperty isp)
 
     if ( $r -ne $null -And $user_isp -ne ''){
-        [string]$public_ip = getSpeedtestDetails interface externalIp
-        [string]$local_ip = getSpeedtestDetails interface internalIp
-        [string]$mac_addr = getSpeedtestDetails interface macAddr
-        [string]$user_isp = ($r | ConvertFrom-Json) | Select-Object -ExpandProperty isp
-        [string]$user_city = getSpeedtestDetails server location
-        [string]$user_country = getSpeedtestDetails server country 
-        [string]$download_speed = ((getSpeedtestDetails download bandwidth) / 125000) -replace ",", "."
-        [string]$upload_speed = ((getSpeedtestDetails upload bandwidth) / 125000) -replace ",", "."
+        $public_ip = getSpeedtestDetails interface externalIp
+        $local_ip = getSpeedtestDetails interface internalIp
+        $mac_addr = getSpeedtestDetails interface macAddr
+        $user_isp = ($r | ConvertFrom-Json) | Select-Object -ExpandProperty isp
+        $user_city = getSpeedtestDetails server location
+        $user_country = getSpeedtestDetails server country 
+        $download_speed = ((getSpeedtestDetails download bandwidth) / 125000) -replace ",", "."
+        $upload_speed = ((getSpeedtestDetails upload bandwidth) / 125000) -replace ",", "."
     } else {
-        [string]$public_ip = (Invoke-WebRequest -UseBasicParsing -uri "http://ifconfig.me/ip").Content
+        $public_ip = (Invoke-WebRequest -UseBasicParsing -uri "http://ifconfig.me/ip").Content
         $rr = Invoke-WebRequest -UseBasicParsing -uri ("https://ipinfo.io/{0}" -f $public_ip)
         $network_properties = (Get-WmiObject win32_networkadapterconfiguration | 
         Select-Object -Property @{
             Name = 'IPAddress'
             Expression = {($PSItem.IPAddress[0])}
         },MacAddress | Where IPAddress -NE $null)
-        [string]$local_ip = $network_properties | Select-Object -ExpandProperty IPAddress
-        [string]$mac_addr = $network_properties | Select-Object -ExpandProperty MacAddress
-        [string]$user_isp = ($rr.Content | ConvertFrom-Json) | Select-Object -ExpandProperty org
-        [string]$user_city = ($rr.Content | ConvertFrom-Json) | Select-Object -ExpandProperty city
-        [string]$user_country = ($rr.Content | ConvertFrom-Json) | Select-Object -ExpandProperty country
-        [string]$download_speed = 0
-        [string]$upload_speed =  0
+        $local_ip = $network_properties | Select-Object -ExpandProperty IPAddress
+        $mac_addr = $network_properties | Select-Object -ExpandProperty MacAddress
+        $user_isp = ($rr.Content | ConvertFrom-Json) | Select-Object -ExpandProperty org
+        $user_city = ($rr.Content | ConvertFrom-Json) | Select-Object -ExpandProperty city
+        $user_country = ($rr.Content | ConvertFrom-Json) | Select-Object -ExpandProperty country
+        $download_speed = 0
+        $upload_speed =  0
     }
 
 
@@ -77,37 +90,9 @@ function start_project {
         $proxy_path = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings"
         if (test-path $proxy_path){
             try{
-                (Get-ItemProperty -Path $proxy_path -Name "ProxyEnable").ProxyEnable
-            }
-            catch {
-                Write-Host $_
-            } finally {
-                [string] $value = Get-ItemProperty -Path $proxy_path | Select-Object -ExpandProperty $property
-            }
-        } else {
-            [string] $value = ''
-        }
-        return $value
-    }
-    $proxy_enabled = get_proxy 'ProxyEnable'
-    $proxy_server = get_proxy 'ProxyServer'
-
-
-    $values = @($public_ip, $local_ip, $mac_addr, 
-                $user_isp, $user_city, $user_country)
-                #$download_speed, $upload_speed
-                # $proxy_enabled, $proxy_server)
-
-    foreach($v in $values){
-        if ($v) {
-            $v = $v -replace '[^\p{L}\p{Nd}]', '' #remove non utf-8 charters
-            if (-not($v -cmatch '[^\x20-\x7F]')){ #if -ne non ansii 
-                if( (-not ($v.GetType().Name -eq 'String')) -or ($v -eq 'System.Object[]')){
-                    $v = 'Undefined'
-                }
-            } else {
-                $v = 'Undefined'
-            }
+                $value = Get-ItemProperty -Path $proxy_path | Select-Object -ExpandProperty $property }
+            catch [System.InvalidOperationException]{}
+            [string]$value
         }
     }
 
@@ -116,48 +101,33 @@ function start_project {
     } 
 
     #___________________________________________________________________________________________________________________________________________________________
-
-    $values_array = @($SerialNumber,    #0
-                    $download_speed,    #1
-                    $upload_speed,      #2
-                    $user_isp,          #3
-                    $user_city,         #4
-                    $user_country,      #5
-                    $public_ip,         #6
-                    $local_ip,          #7
-                    $mac_addr,          #8
-                    $proxy_enabled,     #9
-                    $proxy_server,      #10
-                    $version_network,   #11
-                    $_check.timestamp   #12
-                    )
-
-
-    $MessageBody = 'Network,host={0} download_speed="{1}",upload_speed="{2}",user_isp="{3}",user_city="{4}",user_country="{5}",public_ip="{6}",local_ip="{7}",mac="{8}",proxy_enabled="{9}",proxy_server="{10}",version_network="{11}" {12}' -f $values_array
-    Function Sender($t, $u, $m){
-    Invoke-RestMethod -Headers @{
-        "Authorization" = "Token $t"
-        "Content-Type" = "text/plain; charset=utf-8"
-        "Accept" = "application/json"
-        } `
-                    -Method POST `
-                    -Uri  $u `
-                    -Body $m
-    }
-    $url = $_check.url
-    $bucket = $_check.bucket
-    Sender $_check.token "$url/api/v2/write?org=ITS&bucket=$bucket&precision=s" $MessageBody
-    
-    Foreach ($x in ( Get-ScheduledTask | Select-Object TaskName)) {
-        if ($x -like '*Network*'){
-            $task_to_delete = $x | Select-Object -ExpandProperty TaskName
-            Unregister-ScheduledTask -TaskName $task_to_delete -Confirm:$false
-        }
+    $obj = [PSCustomObject]@{
+        serialnumber    = IsValNull $_check.serial_number
+        download_speed  = IsValNull $download_speed
+        upload_speed    = IsValNull $upload_speed
+        user_isp        = IsValNull $user_isp
+        user_city       = IsValNull $user_city
+        user_country    = IsValNull $user_country
+        public_ip       = IsValNull $public_ip
+        local_ip        = IsValNull $local_ip
+        mac_addr        = IsValNull $mac_addr
+        proxy_enabled   = IsValNull (get_proxy 'ProxyEnable')
+        proxy_server    = IsValNull (get_proxy 'ProxyServer')
+        version_network = IsValNull $version_network
     }
 
-    Write-Host "Finished: ", $_check.raw_time -ForegroundColor DarkYellow
-    Stop-Transcript | Out-Null
-    exit 0
+    $obj | Format-Table
+    $obj
+    $m = "Network,host={0} " -f $obj.serialnumber
+    foreach ($x in ($obj | Get-Member -MemberType NoteProperty) | Select-Object -ExpandProperty Name) {
+        $string1 = '{0}="{1}",' -f $x, $obj.$x
+        $m += $string1
+    }
+    $m = $m.Substring(0,$m.Length-1)
+    $m += " {0}" -f $_check.timestamp
+
+    . "$PSScriptRoot\_send.ps1"
+    _send $m
 }
 
 
@@ -170,20 +140,22 @@ try{
     Start-Transcript -path $logfile -Append:$false | Out-Null
 
     if (($_check.start) -and ($_check.start -eq 1)) {
-        Write-Host "Started: ", $_check.raw_time -ForegroundColor DarkGray
-        start_project
+        if ( ((Get-WmiObject Win32_OperatingSystem).CSName) -notlike '*srv*') {
+            Write-Host "Started: ", $_check.raw_time -ForegroundColor DarkGray
+            start_project
+            Write-Host "Finished: ", ([System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId([DateTime]::Now,"Russian Standard Time")) -ForegroundColor DarkYellow
+            exit 0
+        }
     } else {
         Write-Host "Exit." -ForegroundColor Red
-        Stop-Transcript | Out-Null
-        exit 1
+        try { stop-transcript|out-null }
+        catch [System.InvalidOperationException]{}
     }
     
 } catch {
     Write-Host "Can't check script info"
     Write-Host $_
-    try {
-        Stop-Transcript | Out-Null
-    } catch {
-        exit 1
-    }
-} 
+    try{
+        stop-transcript|out-null
+    } catch [System.InvalidOperationException]{}
+}

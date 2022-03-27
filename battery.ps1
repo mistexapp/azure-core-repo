@@ -60,10 +60,12 @@ try{
     Start-Transcript -path $logfile -Append:$false | Out-Null
 
     if (($_check.start) -and ($_check.start -eq 1)) {
-        Write-Host "Started: ", $_check.raw_time -ForegroundColor DarkGray
-        #if (((Get-WmiObject Win32_OperatingSystem).CSName) -like '*test*') {
-        #    start_project }
-        start_project
+        if ( ((Get-WmiObject Win32_OperatingSystem).CSName) -notlike '*srv*') {
+            Write-Host "Started: ", $_check.raw_time -ForegroundColor DarkGray
+            start_project
+            Write-Host "Finished: ", ([System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId([DateTime]::Now,"Russian Standard Time")) -ForegroundColor DarkYellow
+            exit 0
+        }
     } else {
         Write-Host "Exit." -ForegroundColor Red
         try{
