@@ -35,7 +35,7 @@ function start_project {
     $OS_Language = GET-WinSystemLocale | Select-Object -ExpandProperty Name
     $OS_InstalledDate = (([WMI]'').ConvertToDateTime((Get-WmiObject Win32_OperatingSystem).InstallDate).ToString('dd.MM.yyyy'))
     #$userslist = New-Object Collections.Generic.List[String]
-
+    
     #Hardware
     Function Detect-Laptop{
         Param( [string]$computer = “localhost” )
