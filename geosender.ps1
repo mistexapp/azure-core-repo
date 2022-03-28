@@ -42,7 +42,7 @@ function start_project {
         latitude = IsValNull (get_coordinates 'Latitude' )
         longitude = IsValNull (get_coordinates 'Longitude' )
         map_url = IsValNull ("https://www.google.com/maps/search/?api=1&query={0},{1}" -f $latitude, $longitude)
-        geo_version = IsValNull $version
+        version_geo = IsValNull $version
     }
 
     . "$PSScriptRoot\_send.ps1"
