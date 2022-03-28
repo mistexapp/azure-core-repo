@@ -36,7 +36,7 @@ function  start_project{
     }
 
     $obj = [pscustomobject]@{
-        version = IsValNull $version
+        version_inventory = IsValNull $version
         request = IsValNull $_check.timestamp
 
         serialnumber = IsValNull $_check.serial_number
