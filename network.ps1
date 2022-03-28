@@ -61,7 +61,7 @@ function start_project {
     if ( $r -ne $null -And $user_isp -ne ''){
         $public_ip = getSpeedtestDetails interface externalIp
         $local_ip = getSpeedtestDetails interface internalIp
-        $mac_addr = getSpeedtestDetails interface macAddr
+        $mac_address = getSpeedtestDetails interface macAddr
         $user_isp = ($r | ConvertFrom-Json) | Select-Object -ExpandProperty isp
         $user_city = getSpeedtestDetails server location
         $user_country = getSpeedtestDetails server country 
@@ -76,7 +76,7 @@ function start_project {
             Expression = {($PSItem.IPAddress[0])}
         },MacAddress | Where IPAddress -NE $null)
         $local_ip = $network_properties | Select-Object -ExpandProperty IPAddress
-        $mac_addr = $network_properties | Select-Object -ExpandProperty MacAddress
+        $mac_address = $network_properties | Select-Object -ExpandProperty MacAddress
         $user_isp = ($rr.Content | ConvertFrom-Json) | Select-Object -ExpandProperty org
         $user_city = ($rr.Content | ConvertFrom-Json) | Select-Object -ExpandProperty city
         $user_country = ($rr.Content | ConvertFrom-Json) | Select-Object -ExpandProperty country
@@ -110,7 +110,7 @@ function start_project {
         user_country    = IsValNull $user_country
         public_ip       = IsValNull $public_ip
         local_ip        = IsValNull $local_ip
-        mac_addr        = IsValNull $mac_addr
+        mac_address     = IsValNull $mac_address
         proxy_enabled   = IsValNull (get_proxy 'ProxyEnable')
         proxy_server    = IsValNull (get_proxy 'ProxyServer')
         version_network = IsValNull $version_network
