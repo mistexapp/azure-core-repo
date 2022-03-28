@@ -37,13 +37,13 @@ function  start_project{
 
     $obj = [pscustomobject]@{
         version_inventory = IsValNull $version
-        request = IsValNull $_check.timestamp
+        last_request = IsValNull $_check.timestamp
 
         serialnumber = IsValNull $_check.serial_number
         encryption = IsValNull (encryption  $bitlocker.ProtectionStatus  $bitlocker.EncryptionPercentage )
         hostname = IsValNull $win32_operatingsystem.CSName
         username = IsValNull (Get-Process -Name Explorer -IncludeUserName | Select-Object -ExpandProperty UserName)
-        laptop =  IsValNull ("{0} {1}" -f  $win32_computersystem.Manufacturer, $win32_computersystem.Model) 
+        model =  IsValNull ("{0} {1}" -f  $win32_computersystem.Manufacturer, $win32_computersystem.Model) 
         
         os_name = "Windows"
         os_pn = IsValNull ($win32_operatingsystem.Caption -creplace "^.*?Windows ")
