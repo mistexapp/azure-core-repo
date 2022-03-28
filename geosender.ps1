@@ -41,7 +41,7 @@ function start_project {
         serialnumber = IsValNull $_check.serial_number
         latitude = IsValNull (get_coordinates 'Latitude' )
         longitude = IsValNull (get_coordinates 'Longitude' )
-        map_url = IsValNull ("https://www.google.com/maps/search/?api=1&query={0},{1}" -f $user_latitude, $user_longitude)
+        map_url = IsValNull ("https://www.google.com/maps/search/?api=1&query={0},{1}" -f $latitude, $longitude)
         geo_version = IsValNull $version
     }
 
